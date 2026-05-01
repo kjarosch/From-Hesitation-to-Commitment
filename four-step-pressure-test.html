@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Four-Step Pressure Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #0b1727;
+    --ink-soft:   #475569;
+    --muted:      #94a3b8;
+    --bg:         #faf8f3;
+    --surface:    #ffffff;
+    --line:       #e6ebf2;
+    --line-soft:  #eef2f7;
+
+    /* Step colors — brand-blue forward with restrained accent differentiation */
+    --c1:      #0074AD;  --c1-tint: #EAF6FA;  /* Anchored Ask    — Brand blue   */
+    --c2:      #492782;  --c2-tint: #F5EFFF;  /* Recognized Gap  — Deep purple  */
+    --c3:      #168568;  --c3-tint: #C6F7DA;  /* Clarifying Move — Green        */
+    --c4:      #003D5C;  --c4-tint: #EAF6FA;  /* Concrete Step   — Deep brand   */
+
+    --t-fast: 180ms cubic-bezier(.4,0,.2,1);
+    --t-med:  320ms cubic-bezier(.4,0,.2,1);
+    --t-slow: 520ms cubic-bezier(.4,0,.2,1);
+
+    --radius-lg: 18px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+
+    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 1px rgba(15,23,42,.02);
+    --shadow-md: 0 4px 12px rgba(15,23,42,.06), 0 2px 4px rgba(15,23,42,.04);
+    --shadow-lg: 0 18px 40px rgba(15,23,42,.10), 0 6px 14px rgba(15,23,42,.06);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Montserrat", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .widget {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 24px 20px 32px;
+  }
+
+  /* ------------ Progress tracker ------------ */
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  .progress-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .progress-label strong { color: var(--ink); font-weight: 700; }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--line-soft);
+    border-radius: 999px;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    position: absolute; inset: 0;
+    width: 0%;
+    background: linear-gradient(90deg, var(--c1), var(--c2), var(--c3), var(--c4));
+    border-radius: 999px;
+    transition: width var(--t-slow);
+  }
+  .progress-pills { display: flex; gap: 6px; }
+  .progress-pill {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--line);
+    transition: background var(--t-med);
+  }
+  .progress-pill[data-i="1"].active { background: var(--c1); }
+  .progress-pill[data-i="2"].active { background: var(--c2); }
+  .progress-pill[data-i="3"].active { background: var(--c3); }
+  .progress-pill[data-i="4"].active { background: var(--c4); }
+
+  /* ------------ Cards (vertical stack) ------------ */
+  .cards { display: flex; flex-direction: column; gap: 12px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 20px 22px;
+    cursor: pointer;
+    transition: transform var(--t-fast), box-shadow var(--t-fast),
+                border-color var(--t-fast);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--card-color);
+  }
+  .card:focus-visible {
+    outline: 2px solid var(--card-color);
+    outline-offset: 2px;
+  }
+  .card.expanded {
+    cursor: default;
+    box-shadow: var(--shadow-lg);
+    border-color: var(--card-color);
+    border-left: 4px solid var(--card-color);
+    padding-left: 19px;
+  }
+  .card.reviewed::after {
+    content: "";
+    position: absolute;
+    top: 18px; right: 18px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--c3);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>");
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: center;
+    box-shadow: 0 2px 6px rgba(15,23,42,.15);
+    animation: pop var(--t-med);
+  }
+  @keyframes pop {
+    0%   { transform: scale(0); }
+    70%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .card-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--card-color);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px color-mix(in srgb, var(--card-color) 30%, transparent);
+  }
+  .card-titles { flex: 1; min-width: 0; }
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--card-color);
+    margin: 0 0 2px;
+    line-height: 1.25;
+  }
+  .card-tagline {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0;
+    line-height: 1.45;
+  }
+  .card-cta {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--card-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity var(--t-fast), transform var(--t-fast);
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .card:hover .card-cta { opacity: 1; transform: translateX(0); }
+  .card.expanded .card-cta { display: none; }
+  .card.reviewed .card-cta { display: none; }
+
+  /* Expanded detail */
+  .card-detail {
+    display: none;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .card.expanded .card-detail {
+    display: block;
+    animation: fadeUp var(--t-slow);
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 640px) {
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+  .detail-block {
+    background: var(--card-tint);
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+  }
+  .detail-block h4 {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--card-color);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 8px;
+  }
+  .detail-block p {
+    font-size: 14px;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .detail-block p em {
+    color: var(--card-color);
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  .card-actions {
+    display: flex; gap: 8px; justify-content: flex-end;
+    margin-top: 16px;
+  }
+  .btn {
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background var(--t-fast), color var(--t-fast),
+                border-color var(--t-fast), transform var(--t-fast);
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line);
+  }
+  .btn-ghost:hover { background: var(--line-soft); color: var(--ink); }
+  .btn-primary {
+    background: var(--card-color);
+    color: white;
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+
+  /* ------------ Completion ------------ */
+  .complete {
+    display: none;
+    margin-top: 20px;
+    padding: 18px 22px;
+    background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+    color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+  }
+  .complete.show { display: block; animation: fadeUp var(--t-slow); }
+  .complete h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .complete p {
+    margin: 0;
+    opacity: 0.92;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="widget">
+
+  <!-- Progress -->
+  <div class="progress" role="status" aria-live="polite">
+    <span class="progress-label"><strong id="reviewedCount">0</strong> of 4 steps explored</span>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-pills" aria-hidden="true">
+      <div class="progress-pill" data-i="1"></div>
+      <div class="progress-pill" data-i="2"></div>
+      <div class="progress-pill" data-i="3"></div>
+      <div class="progress-pill" data-i="4"></div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards" id="cards">
+
+    <!-- Step 1 -->
+    <article class="card" data-id="1" tabindex="0" role="button" aria-expanded="false"
+      style="--card-color: var(--c1); --card-tint: var(--c1-tint);">
+      <div class="card-head">
+        <div class="card-num">1</div>
+        <div class="card-titles">
+          <h3 class="card-title">Anchored Ask</h3>
+          <p class="card-tagline">Tie the ask to what the pro already said they want.</p>
+        </div>
+        <span class="card-cta">Explore →</span>
+      </div>
+
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <h4>In action</h4>
+            <p><em>"To get to the 12 jobs a week you need to support you and your sister-in-law, here's the lead pace that fits."</em></p>
+          </div>
+          <div class="detail-block">
+            <h4>What to listen for in discovery</h4>
+            <p>A specific outcome the pro names — that's the anchor for the ask.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-ghost" data-collapse>Close</button>
+          <button class="btn btn-primary" data-review>Got it ✓</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Step 2 -->
+    <article class="card" data-id="2" tabindex="0" role="button" aria-expanded="false"
+      style="--card-color: var(--c2); --card-tint: var(--c2-tint);">
+      <div class="card-head">
+        <div class="card-num">2</div>
+        <div class="card-titles">
+          <h3 class="card-title">Recognized Gap</h3>
+          <p class="card-tagline">Spot the soft yes signal before it goes dark.</p>
+        </div>
+        <span class="card-cta">Explore →</span>
+      </div>
+
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <h4>In action</h4>
+            <p>The pro says <em>"Can you give me a couple of days? I'll call you back Friday."</em> That's the gap, not the close.</p>
+          </div>
+          <div class="detail-block">
+            <h4>What to listen for</h4>
+            <p>Callback requests after the budget ask, vague timing, or polite acceptance without specifics.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-ghost" data-collapse>Close</button>
+          <button class="btn btn-primary" data-review>Got it ✓</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Step 3 -->
+    <article class="card" data-id="3" tabindex="0" role="button" aria-expanded="false"
+      style="--card-color: var(--c3); --card-tint: var(--c3-tint);">
+      <div class="card-head">
+        <div class="card-num">3</div>
+        <div class="card-titles">
+          <h3 class="card-title">Clarifying Move</h3>
+          <p class="card-tagline">Surface what's actually underneath the hesitation.</p>
+        </div>
+        <span class="card-cta">Explore →</span>
+      </div>
+
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <h4>In action</h4>
+            <p><em>"Before I let you go — what's the part that has you wanting to wait? Is it the budget, or whether you'd actually book those jobs?"</em></p>
+          </div>
+          <div class="detail-block">
+            <h4>What you'll hear next</h4>
+            <p>The real concern, naming itself for the first time. Stay quiet and let it land.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-ghost" data-collapse>Close</button>
+          <button class="btn btn-primary" data-review>Got it ✓</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Step 4 -->
+    <article class="card" data-id="4" tabindex="0" role="button" aria-expanded="false"
+      style="--card-color: var(--c4); --card-tint: var(--c4-tint);">
+      <div class="card-head">
+        <div class="card-num">4</div>
+        <div class="card-titles">
+          <h3 class="card-title">Concrete Next Step</h3>
+          <p class="card-tagline">Specific time, specific agenda, tied to a specific outcome.</p>
+        </div>
+        <span class="card-cta">Explore →</span>
+      </div>
+
+      <div class="card-detail">
+        <div class="detail-grid">
+          <div class="detail-block">
+            <h4>In action</h4>
+            <p><em>"Let's lock in your weekly budget right now and get you set up before we hang up. By Monday morning, you'll be seeing leads come through."</em></p>
+          </div>
+          <div class="detail-block">
+            <h4>What goes wrong if you skip</h4>
+            <p>"I'll call you Friday" decays into silence. The window closes without anyone noticing.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-ghost" data-collapse>Close</button>
+          <button class="btn btn-primary" data-review>Got it ✓</button>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- Completion -->
+  <div class="complete" id="complete">
+    <h3>All four steps explored.</h3>
+    <p>Up next: practice the pressure test with Marisol — a cleaner ready to grow her business, but hesitating at the budget ask.</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const reviewed = new Set();
+  const cards = document.querySelectorAll('.card');
+  const reviewedCount = document.getElementById('reviewedCount');
+  const progressFill = document.getElementById('progressFill');
+  const pills = document.querySelectorAll('.progress-pill');
+  const completeBanner = document.getElementById('complete');
+
+  function collapseAll(except){
+    cards.forEach(c => {
+      if (c !== except) {
+        c.classList.remove('expanded');
+        c.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  function toggleCard(card){
+    const isOpen = card.classList.contains('expanded');
+    collapseAll(card);
+    if (!isOpen) {
+      card.classList.add('expanded');
+      card.setAttribute('aria-expanded', 'true');
+      setTimeout(() => {
+        card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      }, 80);
+    } else {
+      card.classList.remove('expanded');
+      card.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  cards.forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('button')) return;
+      toggleCard(card);
+    });
+    card.addEventListener('keydown', e => {
+      if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('button')) {
+        e.preventDefault();
+        toggleCard(card);
+      }
+      if (e.key === 'Escape' && card.classList.contains('expanded')) {
+        card.classList.remove('expanded');
+        card.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    card.querySelector('[data-collapse]').addEventListener('click', () => {
+      card.classList.remove('expanded');
+      card.setAttribute('aria-expanded', 'false');
+    });
+
+    card.querySelector('[data-review]').addEventListener('click', () => {
+      const id = card.dataset.id;
+      if (!reviewed.has(id)) {
+        reviewed.add(id);
+        card.classList.add('reviewed');
+        updateProgress();
+      }
+      card.classList.remove('expanded');
+      card.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  function updateProgress(){
+    const n = reviewed.size;
+    reviewedCount.textContent = n;
+    progressFill.style.width = (n/4*100) + '%';
+    pills.forEach(p => {
+      p.classList.toggle('active', reviewed.has(p.dataset.i));
+    });
+    if (n === 4) {
+      completeBanner.classList.add('show');
+      setTimeout(() => completeBanner.scrollIntoView({behavior:'smooth', block:'nearest'}), 200);
+    }
+  }
+})();
+</script>
+
+</body>
+</html>
