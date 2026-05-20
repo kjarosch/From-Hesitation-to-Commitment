@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Essentials — Pilot Feedback & What's Changing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F2F2F5;
+    --card: #FFFFFF;
+    --card-border: #E5E5EA;
+    --text: #18181B;
+    --text-soft: #3F3F46;
+    --text-muted: #71717A;
+    --label: #6B7280;
+    --navy: #1B3A6B;
+    --navy-tint: #EEF3FB;
+    --indigo: #5B5FED;
+    --indigo-tint: #EEF0FE;
+    --red: #DC2626;
+    --red-tint: #FEF2F2;
+    --amber: #D97706;
+    --amber-tint: #FFFBEB;
+    --green: #16A34A;
+    --green-tint: #F0FDF4;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --font: 'Inter', system-ui, sans-serif;
+    --shadow-sm: 0 1px 2px rgba(15,15,30,0.04);
+    --shadow-md: 0 1px 3px rgba(15,15,30,0.05), 0 4px 12px rgba(15,15,30,0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 56px 24px 100px; }
+
+  /* HERO */
+  .hero { background: var(--navy); border-radius: var(--radius-lg); padding: 48px 52px; margin-bottom: 48px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 240px; height: 240px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+  .hero-kicker { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #93B4E8; margin-bottom: 12px; }
+  .hero h1 { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1.25; margin-bottom: 12px; }
+  .hero-meta { font-size: 13px; color: #93B4E8; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 48px; }
+  .stat-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 20px 16px; text-align: center; box-shadow: var(--shadow-sm); }
+  .stat-label { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .stat-value { font-size: 32px; font-weight: 700; letter-spacing: -0.03em; color: var(--navy); line-height: 1; margin-bottom: 4px; }
+  .stat-value.red { color: var(--red); }
+  .stat-sub { font-size: 12px; color: var(--text-muted); }
+
+  /* CTA BANNER */
+  .cta-banner { background: var(--navy); border-radius: var(--radius-md); padding: 20px 24px; margin-bottom: 48px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .cta-banner-text { color: #fff; font-size: 14px; line-height: 1.5; }
+  .cta-banner-text strong { display: block; font-size: 15px; margin-bottom: 4px; }
+  .cta-banner-label { background: #EF4444; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 14px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+
+  /* SECTION */
+  .section { margin-bottom: 48px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .section-num { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-header h2 { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+  .section-source { font-size: 12px; font-weight: 500; color: var(--text-muted); background: var(--bg); border: 1px solid var(--card-border); border-radius: 20px; padding: 3px 10px; margin-left: auto; }
+
+  /* ISSUE CARDS */
+  .issue-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 20px 22px; margin-bottom: 12px; box-shadow: var(--shadow-sm); display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+  .issue-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .issue-body { font-size: 13.5px; color: var(--text-soft); line-height: 1.6; }
+  .issue-quote { font-style: italic; color: var(--text-muted); border-left: 3px solid var(--card-border); padding-left: 12px; margin-top: 8px; font-size: 13px; }
+  .badge { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; white-space: nowrap; align-self: start; }
+  .badge-red { background: var(--red-tint); color: var(--red); }
+  .badge-amber { background: var(--amber-tint); color: var(--amber); }
+  .badge-green { background: var(--green-tint); color: var(--green); }
+  .badge-navy { background: var(--navy-tint); color: var(--navy); }
+
+  /* SPLIT CARD */
+  .split-card { display: grid; grid-template-columns: 1fr 1fr; gap: 0; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 16px; }
+  .split-col { padding: 24px; }
+  .split-col + .split-col { border-left: 1px solid var(--card-border); }
+  .split-col-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 10px; }
+  .split-col-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .split-col p { font-size: 13.5px; color: var(--text-soft); line-height: 1.6; }
+  .split-col p + p { margin-top: 10px; }
+
+  /* 3-COL GRID */
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+  .mini-card { background: var(--navy-tint); border: 1px solid #C8DAEF; border-radius: var(--radius-sm); padding: 16px 18px; }
+  .mini-card-title { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .mini-card p { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+
+  /* PRIORITY TABLE */
+  .priority-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--card-border); }
+  .priority-table thead tr { background: var(--navy); }
+  .priority-table thead th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #fff; letter-spacing: 0.05em; text-transform: uppercase; }
+  .priority-table tbody tr { border-top: 1px solid var(--card-border); }
+  .priority-table tbody tr:hover { background: #F9FAFB; }
+  .priority-table td { padding: 13px 16px; font-size: 13.5px; color: var(--text-soft); vertical-align: top; }
+  .priority-table td:first-child { font-weight: 600; width: 90px; }
+  .priority-table td:nth-child(2) { width: 110px; color: var(--text-muted); font-size: 13px; }
+
+  /* INFO BANNER */
+  .info-banner { background: var(--indigo-tint); border: 1px solid #C7D2FC; border-radius: var(--radius-sm); padding: 14px 18px; font-size: 13.5px; color: #3730A3; margin-top: 16px; }
+  .info-banner b { color: #312E81; }
+  .amber-banner { background: var(--amber-tint); border: 1px solid #FDE68A; border-radius: var(--radius-sm); padding: 14px 18px; font-size: 13.5px; color: #92400E; margin-bottom: 12px; }
+  .amber-banner b { color: #78350F; }
+
+  .divider { border: none; border-top: 1px solid var(--card-border); margin: 48px 0; }
+
+  /* SUCCESS BEHAVIORS */
+  .behavior-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .behavior-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 18px 20px; box-shadow: var(--shadow-sm); display: flex; gap: 14px; align-items: flex-start; }
+  .behavior-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--navy-tint); color: var(--navy); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .behavior-title { font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .behavior-body { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+  .section-intro { font-size: 14px; color: var(--text-soft); line-height: 1.6; margin-bottom: 20px; border-left: 3px solid #C8DAEF; padding-left: 14px; }
+
+  /* ROLLOUT TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 0; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .timeline-row { display: grid; grid-template-columns: 140px 1fr; border-top: 1px solid var(--card-border); }
+  .timeline-row:first-child { border-top: none; }
+  .timeline-date { padding: 16px 18px; background: var(--bg); font-size: 13px; font-weight: 600; color: var(--navy); border-right: 1px solid var(--card-border); display: flex; align-items: flex-start; }
+  .timeline-content { padding: 16px 18px; font-size: 13.5px; color: var(--text-soft); line-height: 1.5; }
+  .timeline-content b { color: var(--text); display: block; margin-bottom: 3px; }
+  .timeline-row.highlight .timeline-date { background: var(--navy-tint); color: var(--navy); }
+  .timeline-row.highlight .timeline-content { background: var(--navy-tint); }
+
+  /* MANAGER GUIDE CARD */
+  .guide-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 24px; box-shadow: var(--shadow-sm); display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+  .guide-card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .guide-card-body { font-size: 13.5px; color: var(--text-soft); line-height: 1.6; }
+  .guide-card-body ul { margin: 8px 0 0 16px; }
+  .guide-card-body li { margin-bottom: 4px; }
+  .guide-link { display: inline-flex; align-items: center; gap: 6px; background: var(--navy); color: #fff; font-size: 13px; font-weight: 600; padding: 10px 18px; border-radius: var(--radius-sm); text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+  .guide-link:hover { background: #152d55; }
+
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .split-card { grid-template-columns: 1fr; }
+    .three-col { grid-template-columns: 1fr; }
+    .hero { padding: 32px 28px; }
+    .cta-banner { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-kicker">Product Essentials &nbsp;·&nbsp; Manager Pilot</div>
+    <h1>What We Heard &amp; What's Changing</h1>
+    <div class="hero-meta">May 2026</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">Managers Assigned</div>
+      <div class="stat-value">12</div>
+      <div class="stat-sub">pilot cohort</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Survey Completed</div>
+      <div class="stat-value red">1</div>
+      <div class="stat-sub">of 12 &nbsp;(8%)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Program Completed</div>
+      <div class="stat-value red">0</div>
+      <div class="stat-sub">no certificates assigned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Feedback Sources</div>
+      <div class="stat-value">2</div>
+      <div class="stat-sub">managers flagged issues</div>
+    </div>
+  </div>
+
+  <!-- ASK BANNER -->
+  <div class="cta-banner">
+    <div class="cta-banner-text">
+      <strong>We still want your feedback — EOD Friday</strong>
+      Chris's notes flagged real issues. If there are others hiding in courses no one's finished yet, we want to catch them before rollout. If you have time to work through the program by end of day Friday, please do — and send any feedback our way.
+    </div>
+    <div class="cta-banner-label">Action needed</div>
+  </div>
+
+  <!-- 01 QUIZ CONTENT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>Quiz Content Issues</h2>
+      <div class="section-source">Source: Chris Blymiller</div>
+    </div>
+
+    <div class="issue-card">
+      <div>
+        <div class="issue-title">Direct Leads vs. Opportunities</div>
+        <div class="issue-body">Both answer options were marked wrong with no correct answer surfaced. Full rewrite needed with a clearly identifiable correct response and updated rationale.</div>
+      </div>
+      <span class="badge badge-red">High</span>
+    </div>
+
+    <div class="issue-card">
+      <div>
+        <div class="issue-title">Package Recommendation — 4-Person Landscaping Crew</div>
+        <div class="issue-body">Answer options reference lead credit amounts that don't exist in the current product. Needs a full rewrite with accurate, current package information.</div>
+        <div class="issue-quote">"I honestly don't know what the right answer is on this one based on the answers. I'm not aware of any $50 or $100 in lead credits… none of these answers make sense to me."</div>
+      </div>
+      <span class="badge badge-red">High</span>
+    </div>
+
+    <div class="issue-card">
+      <div>
+        <div class="issue-title">Thumbtack Pay Framing</div>
+        <div class="issue-body">The scenario reads as the pro asking whether they should pay through Thumbtack, rather than get paid through it. Needs to be reframed before next rollout.</div>
+        <div class="issue-quote">"This question is confusing — is it supposed to be 'should I get paid through TT?'"</div>
+      </div>
+      <span class="badge badge-amber">Medium</span>
+    </div>
+
+    <div class="issue-card">
+      <div>
+        <div class="issue-title">Additional Questions to Review</div>
+        <div class="issue-body">The following were marked wrong without a clear correct answer path. Rationale or answer options need review: soft-yes scenario, ROI/dashboard framing, newer pro first actions, burn-rate goal, customer confidence, Cory lifecycle stage, 1-star review dispute, profile-quality impact.</div>
+      </div>
+      <span class="badge badge-amber">Medium</span>
+    </div>
+  </div>
+
+  <!-- 02 ROLEPLAY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>Roleplay Realism</h2>
+      <div class="section-source">Source: Josh McCawley</div>
+    </div>
+
+    <div class="issue-card">
+      <div>
+        <div class="issue-title">Pro objections are unrealistic</div>
+        <div class="issue-body">In practice calls, the simulated pro responds to a firm package recommendation by suggesting a bigger package — e.g., <em>"That's too small for me, how about the larger one?"</em> A real pro wouldn't know the other packages exist and wouldn't push back this way.</div>
+        <div class="issue-body" style="margin-top:10px;"><b>Fix:</b> Rewrite objection scripts to reflect realistic pushback — cost hesitation, needing time to think, uncertainty about fit, wanting to loop in a partner.</div>
+      </div>
+      <span class="badge badge-red">High</span>
+    </div>
+  </div>
+
+  <!-- 03 QA RUBRIC -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>QA Rubric Alignment</h2>
+      <div class="section-source">Source: Mona's request</div>
+    </div>
+
+    <div class="issue-card">
+      <div>
+        <div class="issue-title">Cross-reference updated QA rubric against the two sales-specific courses</div>
+        <div class="issue-body">Before next rollout, review what specifically changed in the rubric and check it against <em>Beyond the Checklist: Diagnostic Discovery</em> and <em>From Hesitation to Commitment</em> to confirm the content still aligns. If there are gaps, fold the updates in — don't build a separate rubric training.</div>
+      </div>
+      <span class="badge badge-amber">Medium</span>
+    </div>
+  </div>
+
+  <!-- 04 PRODUCT UPDATES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>Product Content Updates</h2>
+    </div>
+
+    <div class="issue-card">
+      <div>
+        <div class="issue-title">Thumbtack Numbers — needs to be folded into Product Essentials</div>
+        <div class="issue-body">Thumbtack Numbers is a recently launched product feature that isn't yet reflected in any PE content. It's most relevant to refunds and how the platform works — review all courses to identify where it fits and add it before the next rollout.</div>
+      </div>
+      <span class="badge badge-amber">Medium</span>
+    </div>
+
+  </div>
+
+  <!-- 05 SESSION FORMAT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>Session Format Change: Live → Biweekly Office Hours</h2>
+    </div>
+
+    <div class="split-card">
+      <div class="split-col">
+        <div class="split-col-label">What existed</div>
+        <div class="split-col-title">Product in Practice — live session with a Product SME</div>
+        <p>The original design included one live session with a POM or PMM on hand to field edge-case product questions once AEs began applying the content. Scoping what that SME role looked like in the live was part of the original ask.</p>
+      </div>
+      <div class="split-col">
+        <div class="split-col-label">What we learned</div>
+        <div class="split-col-title">The SME role is already covered elsewhere</div>
+        <p><b>Prod Ops already runs monthly close-the-loop sessions</b> with AMs, Large Pro Sales, and Pro Success — catching the deeper product conversations the live was built to handle.</p>
+        <p><b>POM and PMM scope doesn't map cleanly</b> to an in-session SME role. The original ask dissolved once the existing infrastructure was visible.</p>
+      </div>
+    </div>
+
+    <div class="three-col">
+      <div class="mini-card">
+        <div class="mini-card-title">Biweekly Office Hours</div>
+        <p>Drop-in while AEs are in the program. Trainers handle the bulk — no SME required. Support happens when it's needed, not on a fixed cadence.</p>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-title">Monthly Close-the-Loops</div>
+        <p>Already running with AMs, Large Pro Sales, and Pro Success via Prod Ops. Catches the deeper product Q&A the live was built for.</p>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-title">Original Ask: Resolved</div>
+        <p>No need to define a POM/PMM SME role in the live. The infrastructure that supports that need already exists.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT SUCCESS LOOKS LIKE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2>What Success Looks Like for Your AEs</h2>
+    </div>
+
+    <p class="section-intro">This program was built from what you and your peers told us — through Q1 calibration data and conversations with Sales leadership — about where calls actually fall apart. The gaps weren't product knowledge. They were application: AEs knowing the product but struggling to use it in the moment when a pro pushes back, rushes to pricing, or gives a soft yes that goes dark. These are the six behaviors we're building toward.</p>
+
+    <div class="behavior-grid">
+      <div class="behavior-card">
+        <div class="behavior-icon">1</div>
+        <div>
+          <div class="behavior-title">Ask layered discovery questions</div>
+          <div class="behavior-body">Surface two things at once — the present situation and its implication, the structure and the capacity, the pain and its cost — instead of running a checklist.</div>
+        </div>
+      </div>
+      <div class="behavior-card">
+        <div class="behavior-icon">2</div>
+        <div>
+          <div class="behavior-title">Recommend the right package using the pro's own words</div>
+          <div class="behavior-body">Package recommendations that are anchored in what the pro actually said — not features, not gut feel — so the fit is self-evident to the pro.</div>
+        </div>
+      </div>
+      <div class="behavior-card">
+        <div class="behavior-icon">3</div>
+        <div>
+          <div class="behavior-title">Talk about lead cost and ROI as ranges, not exact prices</div>
+          <div class="behavior-body">Use Mega Dashboard market averages to frame cost in context of the pro's revenue goals — without quoting a price that becomes the thing they push back on.</div>
+        </div>
+      </div>
+      <div class="behavior-card">
+        <div class="behavior-icon">4</div>
+        <div>
+          <div class="behavior-title">Spot when a "yes" isn't really a yes</div>
+          <div class="behavior-body">Recognize callbacks, vague timing, and polite acceptance as commitment gaps — not closes. This was the highest-impact gap surfaced in Q1 calibration: deals going dark after what felt like a yes.</div>
+        </div>
+      </div>
+      <div class="behavior-card">
+        <div class="behavior-icon">5</div>
+        <div>
+          <div class="behavior-title">Stay in discovery when a pro wants to skip to pricing</div>
+          <div class="behavior-body">Hold diagnostic discipline under pressure — not stalling, but making sure a recommendation is built on something real before the pro gets a number.</div>
+        </div>
+      </div>
+      <div class="behavior-card">
+        <div class="behavior-icon">6</div>
+        <div>
+          <div class="behavior-title">Close with a specific next step</div>
+          <div class="behavior-body">Convert hesitation with a clarifying move and a concrete commitment — not an open-ended callback that has no follow-through path.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHAT ROLLOUT LOOKS LIKE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <h2>What Rollout Looks Like for Your Team <span style="font-size:12px; font-weight:500; color:var(--amber); background:var(--amber-tint); border:1px solid #FDE68A; border-radius:20px; padding:3px 10px; margin-left:8px; vertical-align:middle; letter-spacing:0.02em;">Tentative</span></h2>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-row">
+        <div class="timeline-date">Now → Jun 20</div>
+        <div class="timeline-content"><b>Incorporate pilot feedback</b>Fix flagged quiz questions, update package content, rewrite roleplay objection scripts, and cross-reference the QA rubric against the two sales-specific courses. TPH holiday June 12 and US holiday June 19 are accounted for in this window — if you completed the program and want to do a final review pass, this is the time to do it.</div>
+      </div>
+      <div class="timeline-row highlight">
+        <div class="timeline-date">Jun 22</div>
+        <div class="timeline-content"><b>Target: First AE cohort goes live</b>First wave of AEs enrolled. Self-paced with biweekly office hours available for drop-in questions — no mandatory live session. Cohort sizes managed by enrollment wave, not self-signup.</div>
+      </div>
+      <div class="timeline-row">
+        <div class="timeline-date">Ongoing</div>
+        <div class="timeline-content"><b>Biweekly office hours</b>Available throughout the program for AEs to bring questions. Trainers handle the bulk — no SME required on your end. Your role is reinforcement in 1:1s using the Manager Discussion Guide.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YOUR ROLE AS A MANAGER -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <h2>Your Role as a Manager</h2>
+    </div>
+
+    <div class="guide-card">
+      <div>
+        <div class="guide-card-title">Sales Manager Discussion Guide</div>
+        <div class="guide-card-body">
+          The guide is built to make coaching this work concrete — not just "reinforce the content" but a specific path for every scenario your AEs will run into.
+          <ul>
+            <li><b>Simulation scorecards:</b> Every AE sends you their Marcus capstone results via Slack. The guide gives you structured 1:1 prompts tied directly to their score and typed responses — so the conversation starts with what they actually wrote, not a generic debrief.</li>
+            <li><b>Course-by-course coaching prompts:</b> Questions to check application, not just completion. "Walk me through how you'd explain weekly budget to a pro who's hesitating" — not "did you finish the course?"</li>
+            <li><b>Pass/fail conversation starters:</b> Different outcomes call for different coaching. The guide covers 3/3, 2/3, 1/3, and Did Not Complete so you know how to celebrate strong attempts and coach struggle without it feeling punitive.</li>
+          </ul>
+        </div>
+      </div>
+      <a class="guide-link" href="https://coda.io/d/Sales-Manager-Discussion-Guide_d7m2WBAgUv7/Start-Here_suO2hgFb#_luNx5j6Y" target="_blank" rel="noopener">Open the guide ↗</a>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 09 PRIORITY TABLE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <h2>Priority Fixes Before Next Rollout</h2>
+    </div>
+
+    <table class="priority-table">
+      <thead>
+        <tr>
+          <th>Priority</th>
+          <th>Type</th>
+          <th>Action Required</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-red">High</span></td>
+          <td>Content</td>
+          <td>Rewrite the Direct Leads vs. Opportunities question with a clearly correct answer and updated rationale.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-red">High</span></td>
+          <td>Content</td>
+          <td>Update the 4-person crew package question with accurate package names and current product details.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-red">High</span></td>
+          <td>Roleplay</td>
+          <td>Rewrite pro objection scripts — realistic pushback only (cost, timing, uncertainty), not package-aware comparisons.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-amber">Medium</span></td>
+          <td>Content</td>
+          <td>Clarify the Thumbtack Pay scenario — rephrase so it's clearly about receiving payment, not sending it.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-amber">Medium</span></td>
+          <td>Content</td>
+          <td>Audit and update rationale/answer options for the 8 additional flagged questions.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-amber">Medium</span></td>
+          <td>Content</td>
+          <td>Cross-reference updated QA rubric against the two sales-specific courses and fold in any changes.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-amber">Medium</span></td>
+          <td>Content</td>
+          <td>Add Thumbtack Numbers to relevant Product Essentials courses before next rollout.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>
