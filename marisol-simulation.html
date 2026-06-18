@@ -1,1289 +1,656 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Marisol — Hesitation to Commitment Simulation</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Hesitation to Commitment — Marisol [Dev]</title>
 <style>
-  :root {
-    --brand:        #0074AD;
-    --brand-bright: #009FD9;
-    --brand-deep:   #003D5C;
-    --brand-tint:   #EAF6FA;
-    --ink:          #0b1727;
-    --ink-soft:     #475569;
-    --muted:        #94a3b8;
-    --line:         #e2e8f0;
-    --line-soft:    #f1f5f9;
-    --bg:           #f8fafc;
-    --surface:      #ffffff;
-    --strong:       #168568;
-    --strong-tint:  #C6F7DA;
-    --soft:         #B22D31;
-    --soft-tint:    #FFEFF0;
-    --warning:      #d97706;
-    --warning-tint: #FDF7E7;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #1a1a1a; line-height: 1.5; padding: 20px; }
 
-    --radius-lg: 18px;
-    --radius-md: 14px;
-    --radius-sm: 10px;
+/* MODE SELECTOR */
+.mode-screen { max-width: 680px; margin: 60px auto; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.mode-screen h1 { font-size: 21px; color: #1a4480; margin-bottom: 6px; }
+.mode-screen .sub { font-size: 13px; color: #666; margin-bottom: 28px; }
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.mode-card { border: 2px solid #e0e6f0; border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s; position: relative; }
+.mode-card:hover { border-color: #1a4480; background: #f8faff; }
+.mode-card.selected { border-color: #1a4480; background: #eef4ff; }
+.mode-icon { font-size: 20px; margin-bottom: 6px; }
+.mode-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.mode-desc { font-size: 12px; color: #666; line-height: 1.5; }
+.mode-badge { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 10px; }
+.badge-pass { background: #d4edda; color: #155724; }
+.badge-fail { background: #f8d7da; color: #721c24; }
+.badge-mixed { background: #fff3cd; color: #856404; }
+.badge-dev { background: #e2d9f3; color: #4a235a; }
+.mode-full { grid-column: 1 / -1; }
+.start-btn { background: #1a4480; color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; width: 100%; }
+.start-btn:hover { background: #2c5aa0; }
 
-    --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 1px rgba(15,23,42,.02);
-    --shadow-md: 0 4px 12px rgba(15,23,42,.06), 0 2px 4px rgba(15,23,42,.04);
-    --shadow-lg: 0 18px 40px rgba(15,23,42,.10), 0 6px 14px rgba(15,23,42,.06);
+/* SIM LAYOUT */
+.container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+@media (max-width: 900px) { .container { grid-template-columns: 1fr; } .sidebar { order: 2; } }
+.header { grid-column: 1 / -1; background: white; border-radius: 12px; padding: 16px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.header-left h1 { font-size: 18px; color: #1a4480; }
+.header-left p { font-size: 12px; color: #666; margin-top: 2px; }
+.dev-badge-header { background: #4a235a; color: white; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 6px; }
+.mode-label-header { font-size: 12px; color: #666; }
+.back-btn { background: white; border: 1.5px solid #d1d9e6; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit; }
+.back-btn:hover { border-color: #1a4480; }
+.main { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); min-height: 600px; }
 
-    --t-fast: 200ms cubic-bezier(.4,0,.2,1);
-    --t-med:  420ms cubic-bezier(.4,0,.2,1);
-    --t-slow: 700ms cubic-bezier(.4,0,.2,1);
-  }
+.persona-card { background: linear-gradient(135deg, #1a4480 0%, #2c5aa0 100%); color: white; padding: 24px; border-radius: 10px; margin-bottom: 24px; }
+.persona-card h2 { font-size: 22px; margin-bottom: 12px; }
+.persona-card .briefing { font-size: 14px; line-height: 1.6; background: rgba(255,255,255,0.1); padding: 14px; border-radius: 6px; }
+.persona-card .briefing strong { display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; opacity: 0.85; }
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    font-family: "Montserrat", system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    line-height: 1.55;
-    font-size: 16px;
-    -webkit-font-smoothing: antialiased;
-  }
+.turn { margin-bottom: 18px; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.speaker { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.turn.ae .speaker { color: #1a4480; }
+.turn.pro .speaker { color: #2d8659; }
+.bubble { padding: 12px 16px; border-radius: 10px; font-size: 14px; max-width: 90%; }
+.turn.ae .bubble { background: #eef4ff; border-left: 3px solid #1a4480; margin-left: auto; }
+.turn.pro .bubble { background: #f0f9f4; border-left: 3px solid #2d8659; }
 
-  .sim {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 24px 20px 40px;
-  }
+.coaching { background: #fef9e7; border-left: 3px solid #d4a017; padding: 12px 16px; margin: 12px 0; border-radius: 6px; font-size: 13px; color: #5a4500; animation: fadeIn 0.4s ease; }
+.coaching strong { display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
 
-  /* =============== HEADER =============== */
-  .sim-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
-    margin-bottom: 18px;
-    box-shadow: var(--shadow-sm);
-  }
-  .turn-indicator {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .turn-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .turn-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--line);
-  }
-  .turn-dot.active { background: var(--brand); }
-  .turn-dot.done   { background: var(--strong); }
-  .turn-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink-soft);
-  }
-  .turn-label strong { color: var(--ink); font-weight: 700; }
+.retry-banner { background: #fff3e6; border: 1.5px solid #d4641a; color: #6a3a14; padding: 12px 14px; margin: 8px 0; border-radius: 6px; font-size: 13px; }
+.retry-banner strong { display: block; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; margin-bottom: 4px; }
 
-  .strike-counter {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink-soft);
-  }
-  .strike-marks {
-    display: flex;
-    gap: 4px;
-  }
-  .strike-mark {
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    border: 1.5px solid var(--line);
-    transition: background var(--t-fast), border-color var(--t-fast);
-  }
-  .strike-mark.lit {
-    background: var(--soft);
-    border-color: var(--soft);
-  }
+.decision { margin: 20px 0; }
+.decision .prompt { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+.option { display: block; width: 100%; text-align: left; background: white; border: 1.5px solid #d1d9e6; padding: 14px 16px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 14px; color: #1a1a1a; transition: all 0.15s ease; font-family: inherit; line-height: 1.5; }
+.option:hover { border-color: #1a4480; background: #f8faff; }
+.option:disabled { cursor: default; opacity: 0.5; }
+.option.dev-correct { border-color: #2d8659 !important; background: #f0fdf4 !important; }
+.option.dev-misstep { border-color: #c43c3c !important; background: #fff5f5 !important; }
+.option.dev-partial { border-color: #d97706 !important; background: #fffbeb !important; }
+.dev-tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 6px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+.tag-c { background: #d4edda; color: #155724; }
+.tag-m { background: #f8d7da; color: #721c24; }
+.tag-p { background: #fff3cd; color: #856404; }
 
-  /* =============== INTRO =============== */
-  .intro {
-    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
-    color: white;
-    padding: 36px 32px;
-    border-radius: var(--radius-lg);
-    margin-bottom: 18px;
-    box-shadow: var(--shadow-md);
-  }
-  .intro h2 {
-    margin: 0 0 12px;
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -0.015em;
-  }
-  .intro .meta {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.75);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-bottom: 14px;
-  }
-  .intro p {
-    margin: 0 0 12px;
-    color: rgba(255,255,255,0.92);
-    font-size: 15.5px;
-    font-weight: 500;
-    line-height: 1.6;
-  }
-  .intro p:last-of-type { margin-bottom: 24px; }
-  .intro-cta {
-    background: white;
-    color: var(--brand-deep);
-    border: none;
-    padding: 14px 28px;
-    font-size: 15px;
-    font-weight: 700;
-    border-radius: 999px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: transform var(--t-fast), box-shadow var(--t-fast);
-    box-shadow: var(--shadow-md);
-  }
-  .intro-cta:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.text-input-block { margin: 20px 0; background: #f8faff; border: 1.5px solid #d1d9e6; border-radius: 10px; padding: 16px; }
+.text-input-block .prompt { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.text-input-block .helper { font-size: 13px; color: #666; margin-bottom: 10px; line-height: 1.5; }
+.text-input-block textarea { width: 100%; min-height: 80px; padding: 12px 14px; border: 1.5px solid #d1d9e6; border-radius: 8px; font-family: inherit; font-size: 14px; resize: vertical; background: white; }
+.text-input-block textarea:focus { outline: none; border-color: #1a4480; }
+.input-error { color: #c43c3c; font-size: 13px; margin-top: 8px; display: none; }
+.input-error.show { display: block; }
+.submit-btn { background: #1a4480; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 12px; font-family: inherit; }
+.submit-btn:hover { background: #2c5aa0; }
+.submit-btn:disabled { background: #999; cursor: default; }
+.input-tip { font-size: 12px; color: #888; margin-top: 6px; font-style: italic; }
+.call-end-banner { background: #fdf2f2; border: 1.5px solid #c43c3c; border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: #7a1111; }
+.call-end-banner strong { display: block; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; margin-bottom: 4px; }
 
-  /* =============== DIALOGUE =============== */
-  .dialogue { display: none; }
-  .dialogue.active { display: block; }
+/* SIDEBAR */
+.sidebar { display: flex; flex-direction: column; gap: 16px; }
+.panel { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); font-size: 13px; }
+.panel h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin-bottom: 12px; }
+.rubric-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+.rubric-item:last-child { border-bottom: none; }
+.check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #d1d9e6; background: white; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #999; margin-top: 1px; }
+.rubric-item.passed .check { background: #2d8659; border-color: #2d8659; color: white; }
+.rubric-item.failed .check { background: #c43c3c; border-color: #c43c3c; color: white; }
+.rubric-label { font-size: 13px; color: #333; line-height: 1.4; }
+.strike-dots { display: flex; gap: 8px; margin-top: 8px; }
+.strike-dot { width: 12px; height: 12px; border-radius: 50%; background: #e0e0e0; border: 2px solid #ccc; transition: all 0.2s; }
+.strike-dot.warn { background: #f59e0b; border-color: #d97706; }
+.strike-dot.fail { background: #c43c3c; border-color: #a33; }
+.strike-label { font-size: 12px; color: #888; margin-top: 6px; }
+.signal-row { padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 12px; }
+.signal-row:last-child { border-bottom: none; }
+.signal-label { font-weight: 700; color: #1a4480; }
+.signal-example { color: #555; font-style: italic; margin-top: 2px; }
 
-  .speaker-row {
-    display: flex;
-    gap: 14px;
-    margin-bottom: 14px;
-    animation: fadeUp var(--t-med);
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    display: grid; place-items: center;
-    color: white;
-    font-weight: 700;
-    font-size: 14px;
-  }
-  .avatar.marisol { background: linear-gradient(135deg, #0074AD, #003D5C); }
-  .avatar.you     { background: linear-gradient(135deg, #d97706, #92400e); }
-  .speech {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
-    flex: 1;
-    box-shadow: var(--shadow-sm);
-  }
-  .speaker-name {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--brand);
-    margin-bottom: 4px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .speaker-row.you .speaker-name { color: var(--warning); }
-  .speech-text {
-    font-size: 15px;
-    color: var(--ink);
-    margin: 0;
-    line-height: 1.55;
-  }
-  .speech-text em {
-    color: var(--ink-soft);
-    font-style: italic;
-  }
+/* DEV PANEL */
+.dev-panel { position: fixed; bottom: 20px; right: 20px; width: 420px; max-height: 72vh; background: #1a0d2e; color: #e8d8ff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.4); z-index: 999; display: flex; flex-direction: column; overflow: hidden; }
+.dev-panel.collapsed { max-height: 46px; }
+.dev-panel-header { background: #2d1045; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; flex-shrink: 0; }
+.dev-panel-title { font-size: 13px; font-weight: 700; color: #e8d8ff; }
+.dev-toggle { font-size: 16px; color: #c8a0e8; }
+.dev-panel-body { overflow-y: auto; padding: 14px 16px; flex: 1; }
+.dev-section { margin-bottom: 20px; }
+.dev-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #c8a0e8; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #3d1a5e; }
+.dev-resp { background: #26103e; border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; font-size: 12px; line-height: 1.5; }
+.dev-resp .dr-trigger { font-size: 10px; color: #a080c8; margin-bottom: 4px; font-style: italic; }
+.dev-resp .dr-text { color: #e8d8ff; margin-bottom: 6px; }
+.dr-tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 4px; margin-right: 4px; }
+.dr-pass { background: #1a4030; color: #7dffb0; }
+.dr-fail { background: #401a1a; color: #ffb0b0; }
+.dr-misstep { background: #40201a; color: #ffcc99; }
+.dr-partial { background: #3a3010; color: #ffe080; }
+.dr-coaching { color: #c8a0e8; font-size: 11px; margin-top: 5px; font-style: italic; border-top: 1px solid #3d1a5e; padding-top: 5px; }
 
-  .stage-direction {
-    text-align: center;
-    margin: 18px 0;
-    font-size: 13px;
-    color: var(--muted);
-    font-style: italic;
-    animation: fadeUp var(--t-med);
-  }
+/* SCORECARD */
+.scorecard { text-align: center; padding: 20px 0; }
+.scorecard h2 { font-size: 24px; margin-bottom: 12px; }
+.score { font-size: 56px; font-weight: 800; color: #2d8659; line-height: 1; margin-bottom: 8px; }
+.score.partial { color: #d97706; }
+.score.low { color: #c43c3c; }
+.breakdown { text-align: left; margin: 24px 0; }
+.breakdown h3 { font-size: 15px; font-weight: 700; margin-bottom: 14px; color: #333; }
+.breakdown-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; align-items: flex-start; }
+.breakdown-item:last-child { border-bottom: none; }
+.breakdown-item .icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; color: white; }
+.breakdown-item.pass .icon { background: #2d8659; }
+.breakdown-item.fail .icon { background: #c43c3c; }
+.breakdown-item .text strong { display: block; font-size: 14px; margin-bottom: 4px; }
+.breakdown-item .text span { font-size: 13px; color: #555; line-height: 1.5; }
+.scorecard-actions { margin: 16px 0; }
+.review-btn { background: white; border: 1.5px solid #d1d9e6; padding: 10px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.review-btn:hover { border-color: #1a4480; }
+.replay-btn { background: white; border: 2px solid #1a4480; color: #1a4480; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 20px; font-family: inherit; }
+.replay-btn:hover { background: #eef4ff; }
 
-  /* =============== CHOICES =============== */
-  .prompt-block {
-    background: var(--surface);
-    border: 2px solid var(--brand);
-    border-radius: var(--radius-md);
-    padding: 22px 24px;
-    margin: 18px 0;
-    animation: fadeUp var(--t-med);
-    box-shadow: var(--shadow-md);
-  }
-  .prompt-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--brand);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .prompt-question {
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--ink);
-    margin: 0 0 18px;
-    line-height: 1.4;
-  }
-  .choices {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .choice {
-    background: white;
-    border: 1.5px solid var(--line);
-    border-radius: var(--radius-sm);
-    padding: 14px 18px;
-    text-align: left;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14.5px;
-    color: var(--ink);
-    line-height: 1.5;
-    transition: border-color var(--t-fast), background var(--t-fast), transform var(--t-fast);
-  }
-  .choice:hover {
-    border-color: var(--brand);
-    background: var(--brand-tint);
-    transform: translateY(-1px);
-  }
-  .choice:focus-visible {
-    outline: 2px solid var(--brand);
-    outline-offset: 2px;
-  }
-  .choice .choice-letter {
-    display: inline-block;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: var(--line-soft);
-    color: var(--ink-soft);
-    text-align: center;
-    line-height: 22px;
-    font-size: 12px;
-    font-weight: 700;
-    margin-right: 10px;
-    transition: background var(--t-fast), color var(--t-fast);
-  }
-  .choice:hover .choice-letter {
-    background: var(--brand);
-    color: white;
-  }
+/* MANAGER BLOCK */
+.manager-feedback { background: #f8faff; border: 1.5px solid #d1d9e6; border-radius: 10px; padding: 20px; margin-top: 24px; text-align: left; }
+.manager-feedback h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; color: #1a4480; }
+.manager-feedback .mgr-why { font-size: 13px; color: #444; margin-bottom: 16px; line-height: 1.6; padding: 12px 14px; background: #eef4ff; border-radius: 6px; border-left: 3px solid #1a4480; }
+.manager-feedback label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px; margin-top: 12px; }
+.manager-feedback input[type="text"] { width: 100%; padding: 10px 12px; border: 1.5px solid #d1d9e6; border-radius: 6px; font-size: 14px; font-family: inherit; }
+.manager-feedback textarea { width: 100%; min-height: 80px; padding: 10px 12px; border: 1.5px solid #d1d9e6; border-radius: 6px; font-size: 14px; font-family: inherit; resize: vertical; margin-top: 4px; }
+.copy-btn { background: #1a4480; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 12px; font-family: inherit; }
+.copy-btn:hover { background: #2c5aa0; }
+.copy-confirm { font-size: 13px; color: #2d8659; margin-top: 8px; display: none; }
+.copy-confirm.show { display: block; }
 
-  /* =============== MANAGER HANDOFF =============== */
-  .manager-handoff {
-    background: var(--surface);
-    border: 2px solid var(--brand);
-    border-radius: var(--radius-lg);
-    padding: 28px;
-    margin-bottom: 18px;
-    box-shadow: var(--shadow-md);
-  }
-  .handoff-step {
-    display: flex;
-    gap: 18px;
-    padding-bottom: 24px;
-    margin-bottom: 24px;
-    border-bottom: 1px solid var(--line-soft);
-    transition: opacity var(--t-med);
-  }
-  .handoff-step:last-child {
-    padding-bottom: 0;
-    margin-bottom: 0;
-    border-bottom: none;
-  }
-  .handoff-step.locked {
-    opacity: 0.5;
-  }
-  .handoff-step.locked .btn {
-    cursor: not-allowed;
-  }
-  .handoff-step.unlocked {
-    opacity: 1;
-  }
-  .handoff-step.complete {
-    opacity: 1;
-  }
-  .handoff-step.complete .step-num {
-    background: var(--strong);
-  }
-  .step-num {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: var(--brand);
-    color: white;
-    display: grid; place-items: center;
-    font-weight: 700;
-    font-size: 16px;
-    flex-shrink: 0;
-    transition: background var(--t-med);
-  }
-  .step-body { flex: 1; min-width: 0; }
-  .step-body h4 {
-    margin: 4px 0 6px;
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--ink);
-  }
-  .step-body p {
-    margin: 0 0 14px;
-    font-size: 14.5px;
-    color: var(--ink-soft);
-    line-height: 1.5;
-  }
-  .step-note {
-    font-size: 13px !important;
-    color: var(--brand-deep) !important;
-    font-weight: 600 !important;
-    background: var(--brand-tint);
-    padding: 10px 14px;
-    border-radius: var(--radius-sm);
-    border-left: 3px solid var(--brand);
-  }
-  .btn-large {
-    padding: 14px 28px;
-    font-size: 15px;
-  }
-  .preview-details {
-    margin-top: 12px;
-  }
-  .preview-details summary {
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--ink-soft);
-    font-weight: 600;
-    padding: 6px 0;
-    user-select: none;
-  }
-  .preview-details summary:hover { color: var(--brand); }
-  .preview-details[open] summary { color: var(--brand); margin-bottom: 8px; }
-
-  .replay-zone {
-    background: var(--line-soft);
-    border-radius: var(--radius-md);
-    padding: 20px 24px;
-    text-align: center;
-  }
-  .replay-zone.unlocked {
-    background: var(--brand-tint);
-  }
-  .replay-note {
-    margin: 0 0 12px;
-    font-size: 13.5px;
-    color: var(--ink-soft);
-  }
-  .replay-zone.unlocked .replay-note {
-    color: var(--brand-deep);
-    font-weight: 600;
-  }
-
-  /* =============== FEEDBACK =============== */
-  .feedback {
-    margin-top: 14px;
-    padding: 16px 18px;
-    border-radius: var(--radius-sm);
-    animation: fadeUp var(--t-med);
-    border-left: 4px solid;
-  }
-  .feedback h4 {
-    margin: 0 0 6px;
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .feedback p {
-    margin: 0 0 10px;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  .feedback p:last-child { margin-bottom: 0; }
-  .feedback.strong {
-    background: var(--strong-tint);
-    border-color: var(--strong);
-  }
-  .feedback.strong h4 { color: var(--strong); }
-  .feedback.soft {
-    background: var(--soft-tint);
-    border-color: var(--soft);
-  }
-  .feedback.soft h4 { color: var(--soft); }
-  .feedback.partial {
-    background: var(--warning-tint);
-    border-color: var(--warning);
-  }
-  .feedback.partial h4 { color: var(--warning); }
-
-  .continue-btn {
-    margin-top: 14px;
-    background: var(--ink);
-    color: white;
-    border: none;
-    padding: 11px 22px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: background var(--t-fast), transform var(--t-fast);
-  }
-  .continue-btn:hover { background: var(--brand-deep); transform: translateY(-1px); }
-
-  /* =============== RESULTS =============== */
-  .results { display: none; }
-  .results.active { display: block; }
-
-  .results-hero {
-    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-deep) 100%);
-    color: white;
-    padding: 36px 32px;
-    border-radius: var(--radius-lg);
-    margin-bottom: 18px;
-    text-align: center;
-    box-shadow: var(--shadow-md);
-  }
-  .results-hero h2 {
-    margin: 0 0 8px;
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -0.015em;
-  }
-  .results-hero .verdict {
-    font-size: 17px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.92);
-    margin: 0 0 24px;
-  }
-  .score-display {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    padding: 14px 28px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 999px;
-    backdrop-filter: blur(8px);
-  }
-  .score-num {
-    font-size: 36px;
-    font-weight: 800;
-    color: white;
-    letter-spacing: -0.02em;
-  }
-  .score-total {
-    font-size: 18px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.7);
-  }
-
-  .results-detail {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    padding: 24px 28px;
-    margin-bottom: 18px;
-    box-shadow: var(--shadow-sm);
-  }
-  .results-detail h3 {
-    margin: 0 0 14px;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--brand-deep);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .turn-summary {
-    padding: 14px 0;
-    border-bottom: 1px solid var(--line-soft);
-  }
-  .turn-summary:last-child { border-bottom: none; }
-  .turn-summary-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 6px;
-  }
-  .turn-num {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    background: var(--line-soft);
-    color: var(--ink-soft);
-    text-align: center;
-    line-height: 24px;
-    font-size: 12px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .turn-num.strong { background: var(--strong); color: white; }
-  .turn-num.soft   { background: var(--soft); color: white; }
-  .turn-num.partial{ background: var(--warning); color: white; }
-  .turn-summary-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--ink);
-    flex: 1;
-  }
-  .turn-verdict {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 3px 10px;
-    border-radius: 999px;
-  }
-  .turn-verdict.strong { background: var(--strong-tint); color: var(--strong); }
-  .turn-verdict.soft   { background: var(--soft-tint); color: var(--soft); }
-  .turn-verdict.partial{ background: var(--warning-tint); color: var(--warning); }
-  .turn-summary-body {
-    font-size: 13.5px;
-    color: var(--ink-soft);
-    margin: 0;
-    line-height: 1.5;
-    padding-left: 34px;
-  }
-  .turn-summary-body em { color: var(--ink); font-style: italic; }
-
-  .actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 18px;
-  }
-  .btn {
-    border: none;
-    padding: 13px 24px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: background var(--t-fast), transform var(--t-fast);
-  }
-  .btn:hover { transform: translateY(-1px); }
-  .btn-primary {
-    background: var(--brand);
-    color: white;
-  }
-  .btn-primary:hover { background: var(--brand-deep); }
-  .btn-ghost {
-    background: white;
-    color: var(--ink);
-    border: 1px solid var(--line);
-  }
-  .btn-ghost:hover { background: var(--line-soft); }
-
-  .copy-block {
-    background: var(--ink);
-    color: #cbd5e1;
-    padding: 18px 20px;
-    border-radius: var(--radius-md);
-    font-family: 'SF Mono', Menlo, Monaco, monospace;
-    font-size: 12.5px;
-    line-height: 1.6;
-    margin-top: 8px;
-    white-space: pre-wrap;
-    overflow-x: auto;
-  }
-  .copy-block .field { color: #94a3b8; }
-  .copy-block .value { color: #f1f5f9; }
-  .copy-confirm {
-    margin-top: 10px;
-    font-size: 13px;
-    color: var(--strong);
-    font-weight: 700;
-    display: none;
-  }
-  .copy-confirm.show { display: block; animation: fadeUp var(--t-fast); }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .sim-header { flex-direction: column; align-items: flex-start; }
-    .turn-indicator { width: 100%; justify-content: space-between; }
-  }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.transcript-modal { background: white; border-radius: 12px; padding: 28px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
+.transcript-modal h2 { font-size: 18px; margin-bottom: 16px; }
+.close-btn { background: #1a4480; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-size: 14px; cursor: pointer; font-family: inherit; }
 </style>
 </head>
-<body>
+<body onload="initSim()">
 
-<div class="sim">
-
-  <!-- ========== HEADER (hidden on intro) ========== -->
-  <div class="sim-header" id="simHeader" style="display: none;">
-    <div class="turn-indicator">
-      <span class="turn-pill">
-        <span class="turn-dot" data-turn="1"></span>
-      </span>
-      <span class="turn-pill">
-        <span class="turn-dot" data-turn="2"></span>
-      </span>
-      <span class="turn-pill">
-        <span class="turn-dot" data-turn="3"></span>
-      </span>
-      <span class="turn-pill">
-        <span class="turn-dot" data-turn="4"></span>
-      </span>
-      <span class="turn-label">Turn <strong id="turnNum">1</strong> of 4</span>
-    </div>
-    <div class="strike-counter">
-      <span>Missteps</span>
-      <div class="strike-marks">
-        <div class="strike-mark" data-strike="1"></div>
-        <div class="strike-mark" data-strike="2"></div>
-        <div class="strike-mark" data-strike="3"></div>
+<!-- MODE SELECTOR -->
+<!-- SIM -->
+<div id="sim-wrap">
+  <div class="container">
+    <div class="header">
+      <div class="header-left">
+        <h1>From Hesitation to Commitment — Marisol Reyes</h1>
+        <p>Activity 2: Hesitation to Commitment Role-play · House Cleaning</p>
       </div>
+      
+      
+      
     </div>
-  </div>
-
-  <!-- ========== INTRO ========== -->
-  <div class="intro" id="intro">
-    <p class="meta">Activity 2 · Hesitation to Commitment</p>
-    <h2>Meet Marisol</h2>
-    <p>Marisol Reyes is a solo house cleaner in your territory, expanding into a small team with her sister-in-law, Elena. She wants to grow from 6 jobs a week to 12 — enough for both of them to make a real living from the business.</p>
-    <p>You've finished discovery. She's engaged. She's ready to hear your weekly budget recommendation.</p>
-    <p><strong>She's also about to hesitate.</strong></p>
-    <p style="font-size: 14px; opacity: 0.85;">Three missteps and Marisol goes dark. Your manager will see your results.</p>
-    <button class="intro-cta" id="startBtn">Begin call →</button>
-  </div>
-
-  <!-- ========== DIALOGUE STAGE ========== -->
-  <div class="dialogue" id="dialogue"></div>
-
-  <!-- ========== RESULTS ========== -->
-  <div class="results" id="results">
-    <div class="results-hero">
-      <h2 id="resultsHeader">Call complete</h2>
-      <p class="verdict" id="resultsVerdict"></p>
-      <div class="score-display">
-        <span class="score-num" id="scoreNum">0</span>
-        <span class="score-total">/ 4</span>
+    <div class="main" id="main"></div>
+    <div class="sidebar">
+      <div class="panel">
+        <h3>Rubric</h3>
+        <div class="rubric-item" id="rubric-1"><div class="check" id="check-1">·</div><div class="rubric-label">Anchored budget ask to Marisol's stated goal</div></div>
+        <div class="rubric-item" id="rubric-2"><div class="check" id="check-2">·</div><div class="rubric-label">Recognized and named the soft yes signal</div></div>
+        <div class="rubric-item" id="rubric-3"><div class="check" id="check-3">·</div><div class="rubric-label">Used a clarifying move (didn't push, didn't accept)</div></div>
+        <div class="rubric-item" id="rubric-4"><div class="check" id="check-4">·</div><div class="rubric-label">Set a concrete next step before ending the call</div></div>
       </div>
-    </div>
-
-    <div class="results-detail">
-      <h3>Turn-by-turn breakdown</h3>
-      <div id="turnBreakdown"></div>
-    </div>
-
-    <!-- Manager handoff — the central required action -->
-    <div class="manager-handoff" id="managerHandoff">
-      <div class="handoff-step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Copy your results</h4>
-          <p>Click the button below. Your full scorecard will copy to your clipboard.</p>
-          <button class="btn btn-primary btn-large" id="copyBtn">Copy my results to clipboard →</button>
-          <div class="copy-confirm" id="copyConfirm">✓ Copied to your clipboard.</div>
-          <details class="preview-details">
-            <summary>Preview what's being copied</summary>
-            <div class="copy-block" id="copyBlock"></div>
-          </details>
+      <div class="panel">
+        <h3>Missteps</h3>
+        <div class="strike-dots">
+          <div class="strike-dot" id="strike-1"></div>
+          <div class="strike-dot" id="strike-2"></div>
+          <div class="strike-dot" id="strike-3"></div>
         </div>
+        <div class="strike-label">3 missteps = call ends</div>
       </div>
-
-      <div class="handoff-step locked" id="step2">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Paste into Slack and send to your manager</h4>
-          <p>Open Slack. Find your manager's DM. Paste your results and send.</p>
-          <p class="step-note">Your manager needs your scorecard to coach you in your next 1:1. This step is required before you can replay.</p>
-          <button class="btn btn-primary" id="confirmSentBtn" disabled>I've sent it to my manager ✓</button>
+      <div class="panel">
+        <h3>Soft Yes Decoder</h3>
+        <div class="signal-row"><div class="signal-label">Callback request</div><div class="signal-example">"Call me Thursday and we'll lock it in."</div></div>
+        <div class="signal-row"><div class="signal-label">Vague timing</div><div class="signal-example">"Let me think about it and get back to you."</div></div>
+        <div class="signal-row"><div class="signal-label">Deflection to partner</div><div class="signal-example">"I need to run it by my sister-in-law first."</div></div>
+        <div class="signal-row"><div class="signal-label">Polite acceptance</div><div class="signal-example">"Yeah, sounds good." (No specifics.)</div></div>
+      </div>
+      <div class="panel">
+        <h3>Discovery Notes</h3>
+        <div style="font-size:13px;color:#444;line-height:1.7">
+          <div><strong>Goal:</strong> 6 → 12 jobs/week</div>
+          <div><strong>Why:</strong> Sister-in-law as 2nd cleaner — needs volume for both to earn full-time</div>
+          <div><strong>Rate:</strong> ~$120/job</div>
+          <div><strong>Timeline:</strong> 12/week within 3 months</div>
+          <div><strong>Budget rec:</strong> $300/week</div>
         </div>
       </div>
     </div>
-
-    <!-- Replay (gated) -->
-    <div class="replay-zone" id="replayZone">
-      <p class="replay-note">Want to try again? You'll need to confirm you've sent your results to your manager first.</p>
-      <button class="btn btn-ghost" id="restartBtn" disabled>Try again</button>
-    </div>
   </div>
-
 </div>
 
+<!-- DEV PANEL — shown only in Developer Mode -->
+
+
 <script>
-(function() {
-  // ============================================================
-  // SIMULATION DATA
-  // ============================================================
+let mode = 'normal';
 
-  const turns = [
-    {
-      id: 1,
-      name: "Anchor the Ask",
-      setup: [
-        { speaker: "marisol", text: "Okay, I'm with you. So what does this look like for me budget-wise?" }
-      ],
-      prompt: "How do you make the weekly budget ask?",
-      type: "choice",
-      choices: [
-        {
-          letter: "A",
-          text: "\"For pros in your category, I'd recommend $450 a week. That's the sweet spot for getting you in front of the right jobs.\"",
-          verdict: "soft",
-          feedback: {
-            title: "The number's right. The anchor's missing.",
-            body: "$450 is the same number as the strong answer — but you tied it to \"pros in your category,\" not to Marisol. She told you she wants 12 jobs a week to support her and Elena. That's the only number that matters to her right now. Without that tie, she has nothing to compare $450 against, and it feels like a lot.",
-            costsStrike: true
-          }
-        },
-        {
-          letter: "B",
-          text: "\"To get you and Elena to 12 jobs a week, the data shows you'd need around $450 weekly. That's what gets you there.\"",
-          verdict: "strong",
-          feedback: {
-            title: "Anchored to her goal.",
-            body: "You named her specific goal — 12 jobs, supporting both of them — and tied the number to it. The data backs you up. You owned the recommendation instead of asking her to set it."
-          }
-        },
-        {
-          letter: "C",
-          text: "\"I'd start you around $300 and we can scale up once we see how the leads are coming in.\"",
-          verdict: "soft",
-          feedback: {
-            title: "Underselling her goal.",
-            body: "$300 doesn't get her to 12 jobs a week. You quietly downgraded her own stated goal because you anticipated her hesitation. She'll either say yes and never hit her goal, or she'll start to question whether you understood what she actually wanted.",
-            costsStrike: true
-          }
-        }
-      ]
-    },
-    {
-      id: 2,
-      name: "Recognize the Soft Yes",
-      setup: [
-        { speaker: "marisol", text: "Hmm. $450 is more than I was expecting. Can you give me a couple of days to think about it? I'll call you back Friday." }
-      ],
-      prompt: "What just happened — and what do you do with it?",
-      type: "choice",
-      choices: [
-        {
-          letter: "A",
-          text: "\"Of course, take the time you need. Let's connect Friday and you can let me know.\"",
-          verdict: "soft",
-          feedback: {
-            title: "You took the soft yes.",
-            body: "It feels respectful to give her space, but \"call me back Friday\" after the budget conversation is one of the four soft yes signals you learned. Friday will come and she won't pick up — not because she's avoiding you, but because the same hesitation she feels right now will still be there. The only chance to move past it is on this call.",
-            costsStrike: true
-          }
-        },
-        {
-          letter: "B",
-          text: "\"I hear you — that's a real number. Before we hang up, I want to make sure I'm not missing something. Can I ask you one quick thing?\"",
-          verdict: "strong",
-          feedback: {
-            title: "You opened the door without pushing.",
-            body: "You acknowledged her reaction so she doesn't feel pressured, then asked permission to keep the conversation going. That permission is what lets the next move land. You haven't accepted the callback, and you haven't pushed back on the price — you've earned thirty more seconds to find out what's actually going on."
-          }
-        },
-        {
-          letter: "C",
-          text: "\"I get that it sounds like a lot, but it's the number that gets you to 12 jobs. Are you sure you want to wait?\"",
-          verdict: "soft",
-          feedback: {
-            title: "You pushed before you understood.",
-            body: "The instinct is right — you want her to commit — but \"are you sure you want to wait?\" makes her defend her hesitation instead of explain it. Now she has to argue for the callback to save face. The clarifying move comes before the push, not after.",
-            costsStrike: true
-          }
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: "The Clarifying Move",
-      setup: [
-        { speaker: "marisol", text: "Yeah, sure, what's up?" }
-      ],
-      prompt: "What's the clarifying question?",
-      type: "choice",
-      choices: [
-        {
-          letter: "A",
-          text: "\"Is it the budget that's giving you pause, or is it whether you'd actually book the jobs once they come in?\"",
-          verdict: "strong",
-          feedback: {
-            title: "Binary. Hard to dodge.",
-            body: "Two clear options force her to pick one — or to surface a third reason you didn't name. Either way, you get specific information. \"Is it A or B\" is harder to deflect than \"what's bothering you,\" because the open question lets her stay vague."
-          }
-        },
-        {
-          letter: "B",
-          text: "\"What's holding you back from saying yes today?\"",
-          verdict: "partial",
-          feedback: {
-            title: "Open enough to let her dodge.",
-            body: "It's a fine question, but it gives her room to say something polite and vague — \"I just need to think about it\" — which puts you back where you started. The binary version (\"is it the budget, or is it whether you'd book the jobs?\") is harder for her to stay vague on. You'd recover from this, but it's not the cleanest move.",
-            costsStrike: false
-          }
-        },
-        {
-          letter: "C",
-          text: "\"What if I could get you to $400? Would that work?\"",
-          verdict: "soft",
-          feedback: {
-            title: "You jumped to a discount.",
-            body: "You assumed the problem was the price, dropped the number, and never asked her what was actually unresolved. If her real concern was whether she could book the jobs, you just lowered your margin without solving anything. Diagnose before you discount.",
-            costsStrike: true
-          }
-        }
-      ]
-    },
-    {
-      id: 4,
-      name: "The Concrete Next Step",
-      setup: [
-        { speaker: "marisol", text: "Honestly? I'm just not sure I'd actually book 12 jobs a week. What if the leads come in and I can't fill them?" }
-      ],
-      prompt: "She named the real concern. What's your next step?",
-      type: "choice",
-      choices: [
-        {
-          letter: "A",
-          text: "\"Let's get you set up at $450 today, and I'll check in with you next week to see how the leads are coming in.\"",
-          verdict: "partial",
-          feedback: {
-            title: "Sounds concrete — isn't.",
-            body: "\"Next week\" and \"check in\" feel like a real plan, but there's no specific day, no specific time, no specific thing you're going to look at together. \"Check in\" calls turn into voicemails. The fix is naming the day, the time, and what you'll actually review when you talk.",
-            costsStrike: true
-          }
-        },
-        {
-          letter: "B",
-          text: "\"That's a fair concern. Let's set you up at $450 right now, and let's put a 15-minute call on the calendar for Friday at 10am — we'll look at your booking rate together and adjust if the leads aren't converting the way we want.\"",
-          verdict: "strong",
-          feedback: {
-            title: "Specific time, specific agenda, tied to her actual concern.",
-            body: "Friday at 10am — not \"next week.\" Fifteen minutes — not \"check in.\" Booking rate review — not a vague status call. And it ties directly to the worry she just named. She has nothing left to dodge, because the next step is built around the thing she's worried about."
-          }
-        },
-        {
-          letter: "C",
-          text: "\"That's totally normal — most pros worry about that and end up with more jobs than they can handle. Let's get you set up.\"",
-          verdict: "partial",
-          feedback: {
-            title: "You moved past her concern instead of through it.",
-            body: "\"That's totally normal\" is meant to reassure but it skips over what she actually said. She might sign up — but the same worry will still be there in two weeks when one lead doesn't convert, and that's when she calls to deactivate. Her concern needs a real next step attached to it, not a reassurance.",
-            costsStrike: true
-          }
-        }
-      ]
-    }
-  ];
 
-  // ============================================================
-  // STATE
-  // ============================================================
 
-  const state = {
-    currentTurn: 0,
-    strikes: 0,
-    record: [],
-    ended: false
-  };
+function initSim() { mode = 'normal'; launchSim(); }
 
-  // ============================================================
-  // DOM REFS
-  // ============================================================
+function launchSim() {
+  document.getElementById('sim-wrap').style.display = 'block';
+  resetState();
+  renderIntro();
+}
 
-  const intro = document.getElementById('intro');
-  const dialogue = document.getElementById('dialogue');
-  const results = document.getElementById('results');
-  const simHeader = document.getElementById('simHeader');
-  const startBtn = document.getElementById('startBtn');
-  const turnNumEl = document.getElementById('turnNum');
-  const turnDots = document.querySelectorAll('.turn-dot');
-  const strikeMarks = document.querySelectorAll('.strike-mark');
+function backToSelect() {
+  resetState();
+  renderIntro();
+}
 
-  // ============================================================
-  // FLOW
-  // ============================================================
 
-  startBtn.addEventListener('click', () => {
-    intro.style.display = 'none';
-    simHeader.style.display = 'flex';
-    dialogue.classList.add('active');
-    renderTurn(0);
-  });
 
-  function renderTurn(idx) {
-    state.currentTurn = idx;
-    const turn = turns[idx];
-    turnNumEl.textContent = idx + 1;
+const FILLS = {
+  'all-correct': {
+    t1good: "To get you and your sister-in-law to 12 jobs a week — enough for both of you to earn a real full-time living — I'd recommend $300 a week. That's the number that gets you there.",
+    t3good: "I hear you. At $120 per job, this budget pays for itself with just 3 additional bookings — that's 3 out of the 6 new jobs you're already targeting to hit 12 per week. What part still feels risky?"
+  },
+  'all-wrong': {
+    t1bad: "I was thinking maybe around $300 a week or something? What do you think would work for you?",
+    t3bad: "Trust me — you'll see the results. Other pros in your area are already doing this."
+  },
+  mixed: {
+    t1good: "To get you and your sister-in-law to 12 jobs a week, I'd recommend $300 a week — that's what the data shows you need.",
+    t3bad: "I think you just need to take the leap — you'll see the return once the jobs start coming in."
+  },
+  dev: {
+    t1good: "To get you and your sister-in-law to 12 jobs a week — enough for both of you to earn a real living — I'd recommend $300 a week.",
+    t1bad: "I was thinking maybe around $300 a week? What do you think?",
+    t3good: "At $120 per job, this budget pays for itself with just 3 additional bookings — 3 out of the 6 new jobs you're already targeting. What part of the number still feels risky?",
+    t3bad: "Trust me — you'll see the return. Other pros in your area are doing this."
+  }
+};
 
-    // Update turn dots
-    turnDots.forEach((dot, i) => {
-      dot.classList.remove('active', 'done');
-      if (i < idx) dot.classList.add('done');
-      else if (i === idx) dot.classList.add('active');
-    });
+const persona = {
+  name: "Marisol Reyes", category: "House Cleaning",
+  briefing: {
+    "Who she is": "Solo house cleaner bringing her sister-in-law on as a second cleaner. At 6 jobs a week now — needs 12 to make it work for both of them to earn a real living.",
+    "What you know from discovery": "She wants 12 jobs a week within 3 months. She charges around $120 per job. She's motivated — this isn't abstract growth, it's whether her sister-in-law's livelihood works out.",
+    "Your recommendation": "$300/week budget. You're about to make that ask.",
+    "What happens next": "She's engaged and ready to hear the number. But she's also about to hesitate. Your job: anchor the ask, recognize the signal, use the clarifying move, set a real next step."
+  }
+};
 
-    dialogue.innerHTML = '';
+let state;
+function resetState() {
+  state = { missteps:0, anchored:false, anchorRetried:false, softYesPath:null, recognizedSoftYes:false, clarifyingMove:false, clarifyRetried:false, concreteNextStep:false, failed:false, transcript:[], anchorText:null, clarifyText:null };
+}
 
-    // Render setup speech
-    turn.setup.forEach(line => {
-      if (line.speaker === 'stage') {
-        const stage = document.createElement('div');
-        stage.className = 'stage-direction';
-        stage.textContent = line.text;
-        dialogue.appendChild(stage);
-      } else {
-        dialogue.appendChild(buildSpeechRow(line.speaker, line.text));
+const main = document.getElementById('main');
+
+function addTurn(spk, txt) {
+  state.transcript.push({ spk, txt });
+  const d = document.createElement('div'); d.className = 'turn ' + spk;
+  d.innerHTML = '<div class="speaker">' + (spk==='ae'?'You (AE)':persona.name) + '</div><div class="bubble"></div>';
+  d.querySelector('.bubble').textContent = txt;
+  main.appendChild(d); d.scrollIntoView({ behavior:'smooth', block:'end' });
+}
+
+function addCoaching(txt) {
+  const d = document.createElement('div'); d.className = 'coaching';
+  const s = document.createElement('strong'); s.textContent = '💡 Coaching'; d.appendChild(s);
+  const sp = document.createElement('span'); sp.textContent = ' ' + txt; d.appendChild(sp);
+  main.appendChild(d); d.scrollIntoView({ behavior:'smooth', block:'end' });
+}
+
+function addRetry(msg) {
+  const d = document.createElement('div'); d.className = 'retry-banner';
+  d.innerHTML = '<strong>⟲ Try again</strong>' + msg;
+  main.appendChild(d); d.scrollIntoView({ behavior:'smooth', block:'end' });
+}
+
+function strike() {
+  state.missteps++;
+  for (let i=1;i<=3;i++) {
+    const d = document.getElementById('strike-'+i);
+    if (d && i<=state.missteps) d.className = state.missteps>=3 ? 'strike-dot fail' : 'strike-dot warn';
+  }
+  return state.missteps >= 3;
+}
+
+function rubric(id, pass) {
+  const item = document.getElementById('rubric-'+id), chk = document.getElementById('check-'+id);
+  if (item && chk) { item.classList.add(pass?'passed':'failed'); chk.textContent = pass?'✓':'✗'; }
+}
+
+function callEnd(line, note) {
+  state.failed = true;
+  addTurn('pro', line || "I have to go. Let's just leave it for now.");
+  const b = document.createElement('div'); b.className = 'call-end-banner';
+  b.innerHTML = '<strong>📞 Call ended — 3 missteps</strong>In a real call, each unaddressed hesitation compounds. By the third one the pro has no reason to commit and every reason to walk away.';
+  main.appendChild(b);
+  if (note) setTimeout(() => addCoaching(note), 600);
+  setTimeout(() => {
+    const rb = document.createElement('button'); rb.className = 'replay-btn'; rb.textContent = '↺ Start over';
+    rb.style.cssText = 'display:block;margin:20px auto 0'; rb.onclick = resetAndReplay;
+    main.appendChild(rb); rb.scrollIntoView({ behavior:'smooth', block:'end' });
+  }, note ? 2200 : 900);
+}
+
+// KEY: misstep options re-show the question after coaching (unless fatal 3rd misstep)
+function showOpts(prompt, opts) {
+  const wrap = document.createElement('div'); wrap.className = 'decision';
+  const lbl = document.createElement('div'); lbl.className = 'prompt'; lbl.textContent = prompt; wrap.appendChild(lbl);
+  opts.forEach(opt => {
+    const btn = document.createElement('button'); btn.className = 'option';
+    if (mode === 'dev') {
+      if (opt.misstep) { btn.classList.add('dev-misstep'); btn.innerHTML = '<span class="dev-tag tag-m">⚠ Misstep</span>' + opt.text; }
+      else if (opt.correct) { btn.classList.add('dev-correct'); btn.innerHTML = '<span class="dev-tag tag-c">✓ Correct</span>' + opt.text; }
+      else { btn.classList.add('dev-partial'); btn.innerHTML = '<span class="dev-tag tag-p">~ Partial</span>' + opt.text; }
+    } else { btn.textContent = opt.text; }
+    btn.onclick = () => {
+      wrap.querySelectorAll('button').forEach(b => b.disabled = true);
+      btn.style.borderColor = '#1a4480'; btn.style.background = '#eef4ff';
+      addTurn('ae', opt.text);
+      if (opt.misstep) {
+        const dead = strike();
+        if (dead) { setTimeout(() => callEnd(opt.failLine, opt.note), 800); }
+        else { setTimeout(() => { addCoaching(opt.note); setTimeout(() => showOpts(prompt, opts), 1400); }, 400); }
+        return;
       }
-    });
-
-    // Render prompt
-    if (turn.type === 'choice') {
-      dialogue.appendChild(buildChoicePrompt(turn));
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function buildSpeechRow(speaker, text) {
-    const row = document.createElement('div');
-    row.className = 'speaker-row ' + speaker;
-
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar ' + speaker;
-    avatar.textContent = speaker === 'marisol' ? 'M' : 'AE';
-    row.appendChild(avatar);
-
-    const speech = document.createElement('div');
-    speech.className = 'speech';
-    const name = document.createElement('div');
-    name.className = 'speaker-name';
-    name.textContent = speaker === 'marisol' ? 'Marisol' : 'You';
-    speech.appendChild(name);
-    const speechText = document.createElement('p');
-    speechText.className = 'speech-text';
-    speechText.textContent = text;
-    speech.appendChild(speechText);
-    row.appendChild(speech);
-
-    return row;
-  }
-
-  function buildChoicePrompt(turn) {
-    const block = document.createElement('div');
-    block.className = 'prompt-block';
-
-    const label = document.createElement('div');
-    label.className = 'prompt-label';
-    label.textContent = 'Turn ' + turn.id + ' · ' + turn.name;
-    block.appendChild(label);
-
-    const q = document.createElement('h3');
-    q.className = 'prompt-question';
-    q.textContent = turn.prompt;
-    block.appendChild(q);
-
-    const choicesWrap = document.createElement('div');
-    choicesWrap.className = 'choices';
-    turn.choices.forEach(choice => {
-      const btn = document.createElement('button');
-      btn.className = 'choice';
-      btn.innerHTML = '<span class="choice-letter">' + choice.letter + '</span>' + escapeHtml(choice.text);
-      btn.addEventListener('click', () => handleChoice(turn, choice, block));
-      choicesWrap.appendChild(btn);
-    });
-    block.appendChild(choicesWrap);
-
-    return block;
-  }
-
-  function handleChoice(turn, choice, block) {
-    // Disable all choices
-    block.querySelectorAll('.choice').forEach(c => {
-      c.disabled = true;
-      c.style.cursor = 'default';
-      c.style.opacity = '0.5';
-    });
-    // Highlight chosen
-    const chosenBtn = Array.from(block.querySelectorAll('.choice'))
-      .find(b => b.textContent.includes(choice.letter));
-    if (chosenBtn) {
-      chosenBtn.style.opacity = '1';
-      chosenBtn.style.borderColor =
-        choice.verdict === 'strong' ? 'var(--strong)' :
-        choice.verdict === 'partial' ? 'var(--warning)' : 'var(--soft)';
-      chosenBtn.style.background =
-        choice.verdict === 'strong' ? 'var(--strong-tint)' :
-        choice.verdict === 'partial' ? 'var(--warning-tint)' : 'var(--soft-tint)';
-    }
-
-    // Track record
-    state.record.push({
-      turn: turn.id,
-      name: turn.name,
-      type: 'choice',
-      chosen: choice.letter + '. ' + choice.text,
-      verdict: choice.verdict,
-      feedback: choice.feedback.title
-    });
-
-    // Strike if needed
-    if (choice.feedback.costsStrike) {
-      state.strikes++;
-      updateStrikes();
-    }
-
-    // Render feedback
-    const fb = buildFeedback(choice.verdict, choice.feedback.title, choice.feedback.body);
-    block.appendChild(fb);
-
-    // Continue button
-    const cont = document.createElement('button');
-    cont.className = 'continue-btn';
-    cont.textContent = state.currentTurn === turns.length - 1 ? 'See results →' : 'Continue call →';
-    cont.addEventListener('click', () => advance());
-    fb.appendChild(cont);
-
-    fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    // Check for game over
-    if (state.strikes >= 3) {
-      state.ended = true;
-    }
-  }
-
-  function buildFeedback(verdict, title, body) {
-    const fb = document.createElement('div');
-    fb.className = 'feedback ' + verdict;
-
-    const h = document.createElement('h4');
-    h.textContent = title;
-    fb.appendChild(h);
-
-    const p = document.createElement('p');
-    p.textContent = body;
-    fb.appendChild(p);
-
-    return fb;
-  }
-
-  function updateStrikes() {
-    strikeMarks.forEach((mark, i) => {
-      mark.classList.toggle('lit', i < state.strikes);
-    });
-  }
-
-  function advance() {
-    if (state.ended || state.currentTurn === turns.length - 1) {
-      showResults();
-    } else {
-      renderTurn(state.currentTurn + 1);
-    }
-  }
-
-  function showResults() {
-    dialogue.classList.remove('active');
-    simHeader.style.display = 'none';
-    results.classList.add('active');
-
-    // Compute score
-    const strongCount = state.record.filter(r => r.verdict === 'strong').length;
-    document.getElementById('scoreNum').textContent = strongCount;
-
-    // Verdict text
-    const header = document.getElementById('resultsHeader');
-    const verdict = document.getElementById('resultsVerdict');
-
-    if (state.ended) {
-      header.textContent = 'Marisol went dark.';
-      verdict.textContent = 'Three missteps closed the call before you could land it. Look at where it slipped — and try it again.';
-    } else if (strongCount === 4) {
-      header.textContent = 'Strong call.';
-      verdict.textContent = 'You anchored the ask, caught the soft yes, asked the right binary question, and set a real next step. Marisol left the call clear about what happens next.';
-    } else if (strongCount >= 2) {
-      header.textContent = 'Mixed call.';
-      verdict.textContent = 'Some moves landed, others slipped. The breakdown below shows where — bring it to your next 1:1 with your manager.';
-    } else {
-      header.textContent = 'Most of the call slipped.';
-      verdict.textContent = 'Several moves came up short. The breakdown below names what happened on each turn — your manager can help you work through it.';
-    }
-
-    // Build turn breakdown
-    const breakdown = document.getElementById('turnBreakdown');
-    breakdown.innerHTML = '';
-    state.record.forEach(rec => {
-      const ts = document.createElement('div');
-      ts.className = 'turn-summary';
-
-      const head = document.createElement('div');
-      head.className = 'turn-summary-head';
-      const num = document.createElement('div');
-      num.className = 'turn-num ' + rec.verdict;
-      num.textContent = rec.turn;
-      head.appendChild(num);
-      const name = document.createElement('div');
-      name.className = 'turn-summary-name';
-      name.textContent = rec.name;
-      head.appendChild(name);
-      const v = document.createElement('div');
-      v.className = 'turn-verdict ' + rec.verdict;
-      v.textContent =
-        rec.verdict === 'strong' ? 'Strong' :
-        rec.verdict === 'partial' ? 'Partial' :
-        'Soft';
-      head.appendChild(v);
-      ts.appendChild(head);
-
-      const body = document.createElement('p');
-      body.className = 'turn-summary-body';
-      body.textContent = rec.feedback;
-      ts.appendChild(body);
-
-      breakdown.appendChild(ts);
-    });
-  }
-
-  // ============================================================
-  // RESULTS ACTIONS
-  // ============================================================
-
-  document.getElementById('copyBtn').addEventListener('click', () => {
-    const block = document.getElementById('copyBlock');
-    const text = generateManagerSummary();
-    block.innerHTML = formatCopyBlock(text);
-
-    // Try to copy to clipboard
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => {
-        document.getElementById('copyConfirm').classList.add('show');
-
-        // Mark step 1 complete and unlock step 2
-        const step1 = document.querySelector('.handoff-step:not(#step2)');
-        step1.classList.add('complete');
-        const step2 = document.getElementById('step2');
-        step2.classList.remove('locked');
-        step2.classList.add('unlocked');
-        document.getElementById('confirmSentBtn').disabled = false;
-
-        // Auto-open the preview so they can verify
-        document.querySelector('.preview-details').open = true;
-      }).catch(() => {
-        // Clipboard failed — show the block so they can manually copy
-        document.querySelector('.preview-details').open = true;
-        alert('Auto-copy failed. Please select the text in the preview and copy it manually.');
-      });
-    } else {
-      // Older browsers — show the block for manual copy
-      document.querySelector('.preview-details').open = true;
-    }
+      if (opt.note) { setTimeout(() => addCoaching(opt.note), 400); setTimeout(opt.next, 1500); }
+      else { setTimeout(opt.next, 700); }
+    };
+    wrap.appendChild(btn);
   });
+  main.appendChild(wrap); wrap.scrollIntoView({ behavior:'smooth', block:'end' });
+  return wrap;
+}
 
-  // Confirm sent to manager — unlocks replay
-  document.getElementById('confirmSentBtn').addEventListener('click', () => {
-    const step2 = document.getElementById('step2');
-    step2.classList.add('complete');
-    document.getElementById('confirmSentBtn').textContent = 'Sent to manager ✓';
-    document.getElementById('confirmSentBtn').disabled = true;
+function showText(lbl, hint, onSubmit, fillKey) {
+  const wrap = document.createElement('div'); wrap.className = 'text-input-block';
+  const pl = document.createElement('div'); pl.className = 'prompt'; pl.textContent = lbl; wrap.appendChild(pl);
+  const hl = document.createElement('div'); hl.className = 'helper'; hl.textContent = hint; wrap.appendChild(hl);
+  const ta = document.createElement('textarea'); ta.placeholder = 'Type your response...'; wrap.appendChild(ta);
+  const err = document.createElement('div'); err.className = 'input-error'; wrap.appendChild(err);
+  const tip = document.createElement('div'); tip.className = 'input-tip'; tip.textContent = 'Ctrl+Enter (Cmd+Enter) to submit.'; wrap.appendChild(tip);
+  const btn = document.createElement('button'); btn.className = 'submit-btn'; btn.textContent = 'Submit'; btn.type = 'button'; wrap.appendChild(btn);
 
-    // Unlock replay
-    const replayZone = document.getElementById('replayZone');
-    replayZone.classList.add('unlocked');
-    replayZone.querySelector('.replay-note').textContent = 'Replay unlocked. Run it again whenever you want — your scorecard is already with your manager.';
-    document.getElementById('restartBtn').disabled = false;
-  });
+  const f = FILLS[mode] || {};
+  const fills = [];
+  if (fillKey==='t1') { if(f.t1good) fills.push({lbl:'✓ Strong ask',cls:'good',val:f.t1good}); if(f.t1bad) fills.push({lbl:'✗ Weak ask',cls:'bad',val:f.t1bad}); }
+  if (fillKey==='t3') { if(f.t3good) fills.push({lbl:'✓ ROI clarify',cls:'good',val:f.t3good}); if(f.t3bad) fills.push({lbl:'✗ Push',cls:'bad',val:f.t3bad}); }
 
-  function generateManagerSummary() {
-    const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    const strongCount = state.record.filter(r => r.verdict === 'strong').length;
 
-    let summary = '*Hesitation to Commitment Roleplay — Marisol Reyes*\n';
-    summary += 'Date: ' + date + '\n';
-    summary += 'Score: ' + strongCount + ' of 4 strong\n';
-    if (state.ended) {
-      summary += 'Status: Call ended early — three missteps\n';
+  main.appendChild(wrap); wrap.scrollIntoView({ behavior:'smooth', block:'end' });
+
+  let autoVal = null;
+  if (mode==='all-correct') { if(fillKey==='t1') autoVal=(FILLS['all-correct']||{}).t1good; if(fillKey==='t3') autoVal=(FILLS['all-correct']||{}).t3good; }
+  if (mode==='all-wrong') { if(fillKey==='t1') autoVal=(FILLS['all-wrong']||{}).t1bad; if(fillKey==='t3') autoVal=(FILLS['all-wrong']||{}).t3bad; }
+  if (mode==='mixed') { if(fillKey==='t1') autoVal=(FILLS.mixed||{}).t1good; if(fillKey==='t3') autoVal=(FILLS.mixed||{}).t3bad; }
+  if (autoVal) { setTimeout(()=>{ ta.value=autoVal; setTimeout(()=>btn.click(),500); },400); }
+  else { setTimeout(()=>ta.focus(),100); }
+
+  let done = false;
+  function go() {
+    if (done) return;
+    const v = ta.value.trim();
+    if (v.length<10) { err.textContent='Please write at least a full sentence.'; err.classList.add('show'); return; }
+    done=true; btn.disabled=true; wrap.style.opacity='0.6';
+    addTurn('ae', v); onSubmit(v);
+  }
+  btn.onclick = go;
+  ta.addEventListener('keydown', e => { if((e.ctrlKey||e.metaKey)&&e.key==='Enter') go(); });
+}
+
+function autoClick(idx) {
+  if (mode==='normal'||mode==='dev') return;
+  setTimeout(() => {
+    const decisions = document.querySelectorAll('.decision');
+    const last = decisions[decisions.length-1];
+    if (last) { const btns = last.querySelectorAll('button'); if (btns[idx]) btns[idx].click(); }
+  }, 900);
+}
+
+// ── INTRO ────────────────────────────────────────────────────
+function renderIntro() {
+  main.innerHTML = '<div class="persona-card"><h2>'+persona.name+' — '+persona.category+'</h2><div class="briefing">'+
+    Object.entries(persona.briefing).map(([k,v])=>'<strong>'+k+'</strong>'+v).join('<br><br>')+
+    '</div></div><div class="decision"><div class="prompt">Ready to begin?</div><button class="option" onclick="startCall()">Start the call</button></div>';
+}
+
+function startCall() {
+  main.innerHTML = '';
+  addTurn('pro', "Okay, I've been thinking about it and I'm ready to hear what you recommend for the budget. You said you'd have something based on what I told you.");
+  setTimeout(turn1, 1000);
+}
+
+// ── TURN 1 ───────────────────────────────────────────────────
+function turn1() {
+  showText("Make your weekly budget ask", "Anchor the number to Marisol's stated goal — she wants to go from 6 to 12 jobs a week so her sister-in-law can make a real living. Don't just say the number.", handleT1, 't1');
+}
+
+function handleT1(val) {
+  state.anchorText = val;
+  const r = val.toLowerCase();
+  const hasAnchor = ['12','sister','goal','both','living','grow','six to','6 to','told me','you said','you want','get you','for you','full-time','full time','income','replace','earn','making','reach','hit 12','get to 12','toward','you mentioned','your goal','what you need','what you want','where you want','both of you','both earn','real living','full living'].some(k=>r.includes(k));
+  const hasNum = r.includes('300')||r.includes('three hundred');
+
+  if (hasAnchor && hasNum) {
+    state.anchored = true;
+    addTurn('pro', "Yeah... $300. I mean — okay. It makes sense when you put it like that, but honestly that number makes me nervous. I'm not going to make a decision right now. Can we just touch base later this week?");
+    setTimeout(()=>{ state.softYesPath='vague-timing'; setTimeout(turn2,800); },1000);
+    return;
+  }
+  if (hasNum && !hasAnchor) {
+    if (!state.anchorRetried) {
+      state.anchorRetried = true;
+      addTurn('pro', "$300... okay but why that number specifically? I feel like I'm just supposed to take your word for it.");
+      setTimeout(()=>{ addRetry("Marisol's asking the right question — connect the number to what she told you. Reference her goal (12 jobs/week), her sister-in-law, or what she wants to earn."); setTimeout(()=>showText("Try again — anchor the ask","Start with what Marisol told you she wants, then make the number follow. Example: 'To get you to [goal], here's what the data shows...'",handleT1,'t1'),800); },600);
+      return;
     }
-    summary += '\n';
-
-    state.record.forEach(rec => {
-      summary += '*Turn ' + rec.turn + ' — ' + rec.name + '*\n';
-      summary += 'Choice: ' + rec.chosen + '\n';
-      summary += 'Verdict: ' + rec.verdict.charAt(0).toUpperCase() + rec.verdict.slice(1) + ' — ' + rec.feedback + '\n';
-      summary += '\n';
-    });
-
-    summary += 'Bring this to your next 1:1 for coaching.';
-    return summary;
+    state.anchored = false;
+    addTurn('pro', "I mean... okay. I don't really know. Thursday maybe? Just call me then.");
+    setTimeout(()=>{ addCoaching("The ask wasn't anchored to Marisol's goal. She engaged politely but has no reason to commit — the number felt disconnected from what she said she wanted."); state.softYesPath='callback'; setTimeout(turn2,3000); },800);
+    return;
   }
+  const dead = strike();
+  addTurn('pro', "Wait — so what are you actually recommending? Like is there a number or...");
+  if (dead) { setTimeout(()=>callEnd("I don't want to waste your time. Let me think about it and reach out when I'm ready.","The ask never landed — no number, no anchor. Marisol couldn't say yes because she didn't know what she was agreeing to."),800); return; }
+  setTimeout(()=>{ addCoaching("An ask without a number isn't an ask. Name $300/week and tie it to her goal — 12 jobs a week so both she and her sister-in-law can earn a full-time living."); setTimeout(()=>showText("Make the ask (with a number this time)","Name the budget: $300/week. Anchor it to Marisol's goal.",handleT1,'t1'),800); },600);
+}
 
-  function formatCopyBlock(text) {
-    return text
-      .replace(/\*([^*]+)\*/g, '<span class="value">$1</span>')
-      .replace(/^([A-Z][^:]*?):/gm, '<span class="field">$1:</span>');
+// ── TURN 2 ───────────────────────────────────────────────────
+function turn2() {
+  const opts = [
+    { text:"That makes sense — I'll put Thursday at 2pm in the calendar and we can lock it in then.", misstep:true, correct:false,
+      failLine:"Yeah, okay. Thursday. [Call ends. Thursday: rings twice, goes to voicemail. No callback.]",
+      note:"Scheduling the callback feels efficient — but it locks in the delay without resolving what's underneath it. She'll have the same unaddressed hesitation on Thursday, just a few days older." },
+    { text:"That's fair — honestly $300 is actually on the conservative end for your market. Most pros targeting your volume are spending more.", misstep:false, correct:false,
+      note:"Reframing the number as conservative is a value move, not a clarifying move. She's heard the case — what she hasn't named yet is the actual concern. This restates the pitch; it doesn't surface what's in the way.",
+      next:()=>{ state.recognizedSoftYes=false; addTurn('pro',"Yeah, I hear you. It's not that I don't believe you. I just — this is more than I've ever spent on something like this and I need a minute, you know?"); setTimeout(()=>addCoaching("She's heard the value case — she's still stalling. The clarifying move asks what's underneath, not whether the number is justified."),400); setTimeout(turn3,2500); } },
+    { text:"I hear you. Before we hang up — what is it about the number that's giving you pause?", misstep:false, correct:true, note:null,
+      next:()=>{ state.recognizedSoftYes=true; addTurn('pro',"Honestly... it's just a lot of money if the leads don't actually come through. I've heard other pros say it didn't work for them and I don't want to be stuck paying for something that doesn't pan out."); setTimeout(turn3,800); } },
+    { text:"Totally — let me send you a quick summary so you have everything in writing before you decide.", misstep:true, correct:false,
+      failLine:"Oh — okay, sure. I'll look for it. [Pause.] So... are we done for now?",
+      note:"Offering to send a summary sounds helpful, but it creates a new step between her and the decision. She was close — now there's a document to review, more time to second-guess, and the real concern is still unaddressed." }
+  ];
+  showOpts("Marisol says she'll 'think about it' and get back to you. What do you do?", opts);
+  if (mode==='all-correct'||mode==='mixed') autoClick(2);
+  else if (mode==='all-wrong') autoClick(0);
+}
+
+// ── TURN 3 ───────────────────────────────────────────────────
+function turn3() {
+  showText("Marisol just told you her real concern: she's worried the jobs won't come. What do you say?","Use the ROI math: $300 ÷ $120/job = 3 bookings to break even — 3 out of the 6 new jobs she's already targeting. Don't push. Don't just restate value.",handleT3,'t3');
+}
+
+function handleT3(val) {
+  state.clarifyText = val;
+  const r = val.toLowerCase();
+  const hasROI = ['breakeven','break even','jobs to','pay for itself','pays for','pays itself','cover the cost','2 jobs','3 jobs','two jobs','three jobs','out of 12','out of 6','what would','what part','feels risky','per job','120','two or three','2 or 3','divide','2.5','couple of booking','couple booking','couple job','few booking','few job','just a few','only a few','2-3','barely','just 3','just two','just 2','only 2','only 3','only two','only three','small number','almost immediately','right away','a few more','a few leads','a few jobs','investment pay','covered after','covered in'].some(k=>r.includes(k));
+  const isPush = ["you'll see","trust me","i promise","you should","just do it","you need to","other pros","you can't afford","take the leap","just trust","you have to","you really should","don't overthink","stop overthinking","you're overthinking","just say yes","just commit"].some(k=>r.includes(k));
+
+  if (isPush) {
+    const dead = strike();
+    addTurn('pro',"Okay — I feel like you're not actually listening to me right now. I said I'm not sure.");
+    if (dead) { setTimeout(()=>callEnd("I'll reach out when I'm ready.","Pressure after a voiced concern ends calls. She told you what's in the way — the move is a question, not an argument."),800); return; }
+    setTimeout(()=>{ addCoaching("She told you her concern. Pushing past it makes you sound like every other salesperson she's ever heard. The clarifying move is a question, not an argument."); setTimeout(()=>showText("Try again — clarifying move","Ask a question that surfaces what's underneath. Try: 'At your rate, this budget pays for itself with just 2–3 additional bookings — that's 2 or 3 out of the 6 new jobs you're already targeting. What part still feels risky?'",handleT3,'t3'),800); },600);
+    return;
   }
+  if (hasROI) {
+    state.clarifyingMove = true;
+    addTurn('pro',"Oh. I mean — three jobs? That's it? [pause] Okay. Yeah. That's actually not as scary as I was making it. Okay, I'm in. What do we do?");
+    setTimeout(turn4,800); return;
+  }
+  if (!state.clarifyRetried) {
+    state.clarifyRetried = true;
+    addTurn('pro',"I hear you... I don't know. I think I just need to sit with it. Maybe over the weekend I'll have a better answer.");
+    setTimeout(()=>{ addRetry("You engaged her concern but didn't land the move. The ROI math is what makes this concrete: at $120/job, the $300 budget pays for itself with just 3 additional bookings — that's 3 out of the 6 new jobs she's already targeting."); setTimeout(()=>showText("Try again — use the math","Frame it: $300 ÷ $120 = 2.5 → 3 jobs. That's 3 out of the 6 new jobs she's targeting to hit 12/week. Connect that number to her stated goal.",handleT3,'t3'),800); },600);
+    return;
+  }
+  state.clarifyingMove = false;
+  addTurn('pro',"I mean... okay. I'm not totally there yet but I'm not saying no. What would the next step even look like?");
+  setTimeout(()=>{ addCoaching("The clarifying move was attempted but didn't land the ROI frame. The strongest version uses her own numbers: $300 ÷ $120/job = 3 jobs to break even, out of the 6 she's targeting. When it's that concrete, hesitation usually converts."); setTimeout(turn4,3000); },600);
+}
 
-  document.getElementById('restartBtn').addEventListener('click', () => {
-    state.currentTurn = 0;
-    state.strikes = 0;
-    state.record = [];
-    state.ended = false;
-    updateStrikes();
+// ── TURN 4 — all options stay on the call ────────────────────
+function turn4() {
+  addTurn('pro',"Okay — yeah. Let's do it. So what do I actually need to do right now?");
+  setTimeout(()=>{
+    const opts = [
+      { text:"Before we finalize — I want to make sure $300 still feels right. We could also look at a slightly lower starting point if you'd feel more comfortable.", misstep:true, correct:false,
+        failLine:"Oh... actually, now that you mention it, maybe I should think about which one makes more sense for me.",
+        note:"She said she was ready. Reopening the budget at the close reintroduces the exact hesitation you just worked through — now she has a new decision to make instead of a next step to take. When a pro says yes, close on that yes." },
+      { text:"Perfect. Let's activate the $300 budget right now — I'll walk you through it while we're on the call, and we'll set a check-in for next Tuesday so you can see your first leads coming in.", misstep:false, correct:true, note:null,
+        next:()=>{ state.concreteNextStep=true; addTurn('pro',"Yes — let's do it. That works."); setTimeout(showScorecard,1000); } },
+      { text:"Great — before we get started I want to make sure you have all the details. Let me walk you through the confirmation and what you're agreeing to, just so there are no surprises.", misstep:true, correct:false,
+        failLine:"Oh... okay. Is there a lot to go through? I thought this was pretty straightforward.",
+        note:"Walking through every detail before activating sounds thorough, but it introduces friction and doubt right at the close. She said yes — the move is to activate now and confirm specifics as you go, not to create a new review step that gives her time to reconsider." },
+      { text:"Sounds good — I'll get the $300 budget activated on my end and you should start seeing leads come through. I'll be in touch once things are up and running.", misstep:false, correct:false,
+        note:"The budget gets activated, which is good — but there's no specific start date, no named check-in, and no clear action for her. Strong closes confirm the exact start, what she'll see and when, and a specific moment to review together.",
+        next:()=>{ state.concreteNextStep=false; addTurn('pro',"Okay... so it's just — on? Like I don't have to do anything? And when are you going to follow up exactly?"); setTimeout(()=>{ addCoaching("She's slightly uncertain now — she doesn't know when it starts, what to expect, or when you'll talk again. Strong closes name all three: the exact start date, what she'll see, and a specific check-in."); setTimeout(showScorecard,3000); },600); } }
+    ];
+    showOpts("She says she's ready to move forward. How do you close?", opts);
+    if (mode==='all-correct') autoClick(1);
+    else if (mode==='all-wrong'||mode==='mixed') autoClick(0);
+  },800);
+}
 
-    // Reset manager handoff gating
-    document.querySelector('.handoff-step:not(#step2)').classList.remove('complete');
-    const step2 = document.getElementById('step2');
-    step2.classList.remove('unlocked', 'complete');
-    step2.classList.add('locked');
-    document.getElementById('confirmSentBtn').disabled = true;
-    document.getElementById('confirmSentBtn').textContent = "I've sent it to my manager ✓";
-    document.getElementById('copyConfirm').classList.remove('show');
-    document.querySelector('.preview-details').open = false;
+// ── SCORECARD ────────────────────────────────────────────────
+function submitToSheet() {
+  var score = [state.anchored, state.recognizedSoftYes, state.clarifyingMove, state.concreteNextStep].filter(Boolean).length;
+  var outcome = state.failed ? 'Call ended — 3 missteps' : (score === 4 ? 'Complete — 4/4' : 'Complete — ' + score + '/4');
+  var payload = {
+    score: score + ' / 4',
+    anchored: state.anchored ? 'Pass' : 'Fail',
+    recognizedSoftYes: state.recognizedSoftYes ? 'Pass' : 'Fail',
+    clarifyingMove: state.clarifyingMove ? 'Pass' : 'Fail',
+    concreteNextStep: state.concreteNextStep ? 'Pass' : 'Fail',
+    anchorText: state.anchorText || '',
+    clarifyText: state.clarifyText || '',
+    missteps: state.missteps,
+    outcome: outcome
+  };
+  fetch('https://script.google.com/macros/s/AKfycbxqHY73hc3yy0at7BHM6WrEneao4VHUxLTt0JKdAgstPY7vfxzTAGiC0w2E0NeEh6AuyQ/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(function(err) { console.warn('Sheet submission failed:', err); });
+}
 
-    // Re-lock replay
-    const replayZone = document.getElementById('replayZone');
-    replayZone.classList.remove('unlocked');
-    replayZone.querySelector('.replay-note').textContent = "Want to try again? You'll need to confirm you've sent your results to your manager first.";
-    document.getElementById('restartBtn').disabled = true;
+function showScorecard() {
+  submitToSheet();
+  rubric(1,state.anchored); rubric(2,state.recognizedSoftYes); rubric(3,state.clarifyingMove); rubric(4,state.concreteNextStep);
+  const score = [state.anchored,state.recognizedSoftYes,state.clarifyingMove,state.concreteNextStep].filter(Boolean).length;
+  const cls = score===4?'':score>=2?'partial':'low';
+  const hd = score===4?"Clean conversion.":score===3?"Strong — one gap to sharpen.":score===2?"Two moves landed, two didn't.":"The pattern is there — run it again.";
 
-    results.classList.remove('active');
-    intro.style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  main.innerHTML = '<div class="scorecard"><h2>Practice Run Complete</h2><div class="score '+cls+'">'+score+' / 4</div>'+
+    '<div style="font-size:18px;color:#444;margin-bottom:16px">'+hd+'</div>'+
+    '<div class="scorecard-actions"><button class="review-btn" onclick="showReview()">📜 Review the conversation</button></div>'+
+    '<div class="breakdown"><h3>Rubric Breakdown</h3>'+
+    bItem(state.anchored,'Anchored the ask to Marisol\'s goal',
+      'You tied the $300 number to what Marisol told you she wanted — 12 jobs a week so both she and her sister-in-law can earn a real living. The ask felt like a plan built for her, not a number you chose.',
+      'The ask wasn\'t anchored to Marisol\'s goal. The number stood alone — which is why she hesitated. Strong asks start with the outcome the pro named, then land the number as the path to get there.')+
+    bItem(state.recognizedSoftYes,'Recognized the soft yes signal',
+      'You caught the signal and didn\'t accept it as a commitment. "Let me think about it" sounds reasonable — but without a specific concern named, it\'s a stall. You named what you heard before moving on.',
+      'The soft yes went unaddressed. Scheduling a callback or restating the value both feel productive — but neither resolves the actual hesitation. The same concern travels to Thursday unaddressed.')+
+    bItem(state.clarifyingMove,'Used a clarifying move',
+      'You used the ROI math — $300 ÷ $120/job = 3 bookings to break even, out of the 6 she\'s already targeting. When it\'s that concrete, hesitation converts. She didn\'t need more convincing, she needed the math.',
+      'The clarifying move didn\'t fully land. The strongest version uses her own numbers: $300 ÷ $120/job = 3 jobs to break even — 3 out of the 6 new jobs she\'s already targeting to hit 12/week. Her numbers do the persuading, not yours.')+
+    bItem(state.concreteNextStep,'Set a concrete next step',
+      'You closed with specifics: activate now, named check-in on Tuesday, and what she\'ll see by then. That\'s a real commitment — not a vague plan to reconnect.',
+      'The close didn\'t land a concrete next step. When a pro says yes, that\'s the moment — not after a detail walkthrough or a promise to follow up. Name the start date, the action, and the check-in before you hang up.')+
+    '</div>'+mgrBlock(score)+'<button class="replay-btn" onclick="resetAndReplay()">↺ Practice again</button></div>';
+}
+
+function bItem(pass,title,yes,no) {
+  return '<div class="breakdown-item '+(pass?'pass':'fail')+'"><div class="icon">'+(pass?'✓':'✗')+'</div><div class="text"><strong>'+title+'</strong><span>'+(pass?yes:no)+'</span></div></div>';
+}
+
+function mgrBlock(score) {
+  return '<div class="manager-feedback">'+
+    '<h3>💬 Share results with your manager</h3>'+
+    '<div class="mgr-why">'+
+      '<strong>Why your manager sees this:</strong> This sim is a practice run, not a test. When you paste your results into Slack, your manager sees exactly what you typed — your budget ask, your clarifying move, and your score on each behavior. That gives them something real to coach from in your 1:1. Not a completion checkbox, but your actual language, so the conversation can be specific to what you said and what you\'d do differently next time.'+
+    '</div>'+
+    '<label for="aen">Your name</label><input type="text" id="aen" placeholder="First Last">'+
+    '<label for="refl">Reflection (optional)</label>'+
+    '<textarea id="refl" placeholder="What\'s one thing you\'d do differently on a real call?"></textarea>'+
+    '<button class="copy-btn" onclick="copyR('+score+')">📋 Copy for Slack</button>'+
+    '<div class="copy-confirm" id="cc">✓ Copied — paste into your manager\'s DM.</div>'+
+    '</div>';
+}
+
+function copyR(score) {
+  const name = (document.getElementById('aen')?.value||'[Name]').trim();
+  const refl = (document.getElementById('refl')?.value||'').trim();
+  const sep = '─────────────────────────────';
+  let t = 'FROM HESITATION TO COMMITMENT — PRACTICE RUN\n'+sep+'\n';
+  t += 'AE: '+name+'\n';
+  t += 'Persona: Marisol Reyes (House Cleaning — weekly budget conversation)\n';
+  t += 'Status: '+(state.failed?'Call ended early — 3 missteps':'Call completed')+'\n';
+  t += 'Score: '+score+' / 4\n\n';
+  t += 'RUBRIC:\n';
+  t += (state.anchored?'✓':'✗')+' Anchored the ask to Marisol\'s goal\n';
+  t += (state.recognizedSoftYes?'✓':'✗')+' Recognized the soft yes signal\n';
+  t += (state.clarifyingMove?'✓':'✗')+' Used a clarifying move\n';
+  t += (state.concreteNextStep?'✓':'✗')+' Set a concrete next step\n';
+  if (state.anchorText||state.clarifyText||refl) {
+    t += '\n'+sep+'\n';
+    if (state.anchorText) t += 'BUDGET ASK (typed):\n"'+state.anchorText+'"\n\n';
+    if (state.clarifyText) t += 'CLARIFYING MOVE (typed):\n"'+state.clarifyText+'"\n\n';
+    if (refl) t += 'REFLECTION:\n'+refl+'\n';
+  }
+  if (navigator.clipboard?.writeText) { navigator.clipboard.writeText(t).then(onCopy).catch(()=>fbCopy(t)); }
+  else { fbCopy(t); }
+}
+
+function fbCopy(t) {
+  const ta = document.createElement('textarea'); ta.value=t; ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); onCopy();
+}
+
+function onCopy() {
+  const c = document.getElementById('cc');
+  if (c) { c.classList.add('show'); setTimeout(()=>c.classList.remove('show'),4000); }
+}
+
+function showReview() {
+  const ov = document.createElement('div'); ov.className = 'modal-overlay';
+  const html = state.transcript.map(t=>'<div class="turn '+t.spk+'"><div class="speaker">'+(t.spk==='ae'?'You (AE)':persona.name)+'</div><div class="bubble"></div></div>').join('');
+  ov.innerHTML = '<div class="transcript-modal"><h2>📜 Conversation Review</h2><div id="tc">'+html+'</div><button class="close-btn" onclick="closeR()">Close</button></div>';
+  document.body.appendChild(ov);
+  const bb = ov.querySelectorAll('.bubble');
+  state.transcript.forEach((t,i)=>{ if(bb[i]) bb[i].textContent=t.txt; });
+  ov.onclick = e => { if(e.target===ov) closeR(); };
+}
+
+function closeR() { const o = document.querySelector('.modal-overlay'); if(o) o.remove(); }
+
+function resetAndReplay() {
+  resetState();
+  ['rubric-1','rubric-2','rubric-3','rubric-4'].forEach(id=>{
+    const it=document.getElementById(id), ch=document.getElementById(id.replace('rubric','check'));
+    if(it) it.classList.remove('passed','failed'); if(ch) ch.textContent='·';
   });
-
-  // ============================================================
-  // UTIL
-  // ============================================================
-
-  function escapeHtml(s) {
-    return s.replace(/[&<>"']/g, m => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[m]));
-  }
-
-})();
+  ['strike-1','strike-2','strike-3'].forEach(id=>{ const d=document.getElementById(id); if(d) d.className='strike-dot'; });
+  renderIntro();
+}
 </script>
-
 </body>
 </html>
