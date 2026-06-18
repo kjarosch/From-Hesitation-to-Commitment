@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spot the Soft Ask</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f7fa;
+    color: #1a1a1a;
+    line-height: 1.6;
+    padding: 24px 20px 48px;
+  }
+
+  .page { max-width: 780px; margin: 0 auto; }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 32px;
+  }
+
+  /* SOFT ASK CARDS */
+  .ask-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin-bottom: 8px;
+  }
+
+  .ask-card {
+    background: #fff;
+    border: 2px solid #e3e8ef;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .ask-card:hover { border-color: #93b4e8; }
+  .ask-card.revealed { border-color: #dc2626; cursor: default; }
+  .ask-card.revealed:hover { border-color: #dc2626; }
+
+  .ask-body { padding: 20px 24px; }
+
+  .ask-quote {
+    font-size: 17px;
+    font-style: italic;
+    color: #1a1a1a;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .ask-context {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.55;
+  }
+
+  .ask-context strong { color: #1a1a1a; }
+
+  .tap-prompt {
+    padding: 10px 24px;
+    border-top: 1px solid #e3e8ef;
+    text-align: center;
+    font-size: 13px;
+    color: #aaa;
+    transition: opacity 0.2s;
+  }
+
+  .reveal-panel {
+    display: none;
+    border-top: 1px solid #fecaca;
+    padding: 18px 24px;
+    background: #fef9f9;
+    animation: fadeIn 0.25s ease;
+  }
+
+  .reveal-panel.visible { display: block; }
+
+  .reveal-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #dc2626;
+    margin-bottom: 10px;
+  }
+
+  .reveal-body {
+    font-size: 15px;
+    color: #1a1a1a;
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+
+  .reveal-missing {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.55;
+  }
+
+  /* REWRITE SECTION */
+  .rewrite-section {
+    display: none;
+    border-top: 2px solid #e3e8ef;
+    padding-top: 28px;
+    margin-top: 12px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .rewrite-section.visible { display: block; }
+
+  .rewrite-heading {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .rewrite-subtitle {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 22px;
+  }
+
+  .picker-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+  }
+
+  .pick-btn {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 2px solid #d1d9e6;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .pick-btn:hover { border-color: #93b4e8; color: #1a4480; }
+  .pick-btn.active { background: #1a4480; color: #fff; border-color: #1a4480; }
+
+  .rewrite-context {
+    display: none;
+    background: #f5f7fa;
+    border: 1px solid #e3e8ef;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: #1a1a1a;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  textarea {
+    display: none;
+    width: 100%;
+    min-height: 110px;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: inherit;
+    border: 2px solid #d1d9e6;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a1a1a;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus { border-color: #1a4480; box-shadow: 0 0 0 3px rgba(26,68,128,0.1); }
+
+  .char-count {
+    font-size: 12px;
+    color: #aaa;
+    text-align: right;
+    margin-top: 5px;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  .submit-btn {
+    display: none;
+    width: 100%;
+    padding: 13px;
+    background: #1a4480;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .submit-btn:hover { background: #153660; }
+  .submit-btn:disabled { background: #93b4e8; cursor: not-allowed; }
+
+  /* FEEDBACK */
+  .feedback-section {
+    display: none;
+    margin-top: 24px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .criteria-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+
+  .criterion {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .criterion.pass { border-left: 4px solid #16a34a; }
+  .criterion.fail { border-left: 4px solid #dc2626; }
+
+  .criterion-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .criterion.pass .criterion-icon { background: #f0fdf4; color: #16a34a; }
+  .criterion.fail .criterion-icon { background: #fef2f2; color: #dc2626; }
+
+  .criterion-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+
+  .criterion-detail {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .criterion.pass .criterion-detail { color: #16a34a; }
+  .criterion.fail .criterion-detail { color: #dc2626; }
+
+  .summary-card {
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+
+  .summary-card.all-pass { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .summary-card.partial { background: #fffbeb; border: 1px solid #fde68a; }
+  .summary-card.none { background: #fef2f2; border: 1px solid #fecaca; }
+
+  .summary-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .summary-card.all-pass .summary-title { color: #15803d; }
+  .summary-card.partial .summary-title { color: #92400e; }
+  .summary-card.none .summary-title { color: #b91c1c; }
+
+  .summary-body { font-size: 15px; line-height: 1.65; }
+  .summary-card.all-pass .summary-body { color: #166534; }
+  .summary-card.partial .summary-body { color: #78350f; }
+  .summary-card.none .summary-body { color: #991b1b; }
+
+  .action-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .try-again-btn {
+    flex: 1;
+    min-width: 140px;
+    background: #fff;
+    color: #1a4480;
+    border: 2px solid #1a4480;
+    border-radius: 10px;
+    padding: 11px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .try-again-btn:hover { background: #eff6ff; }
+
+  .try-other-btn {
+    flex: 1;
+    min-width: 140px;
+    background: #f5f7fa;
+    color: #555;
+    border: 2px solid #d1d9e6;
+    border-radius: 10px;
+    padding: 11px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .try-other-btn:hover { background: #e8ecf0; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 560px) {
+    .picker-row { flex-direction: column; }
+    .action-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Spot the soft ask</h1>
+  <p class="subtitle">Below are three soft asks overheard in real calls. Tap each one to see what makes it soft — then pick one to rewrite as a strong ask anchored to the pro's stated outcome.</p>
+
+  <!-- SOFT ASK 1 -->
+  <div>
+    <p class="ask-label">Soft Ask #1</p>
+    <div class="ask-card" id="card-1" onclick="revealCard(1)">
+      <div class="ask-body">
+        <p class="ask-quote">"I mean, we could bump it up to like $250 or something and just see what happens?"</p>
+        <p class="ask-context"><strong>Context:</strong> The pro said she wants to stay fully booked through the fall.</p>
+      </div>
+      <div class="tap-prompt" id="prompt-1">Tap to see what makes it soft</div>
+      <div class="reveal-panel" id="reveal-1">
+        <p class="reveal-label">What makes it soft</p>
+        <p class="reveal-body">"Like $250 or something" hedges the number — it sounds like the AE is guessing. "Just see what happens" removes any rationale entirely. The question mark turns a recommendation into a request for approval.</p>
+        <p class="reveal-missing"><strong>Missing:</strong> a confident number, a rationale tied to her goal, and the AE owning the recommendation instead of asking the pro to confirm it.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOFT ASK 2 -->
+  <div>
+    <p class="ask-label">Soft Ask #2</p>
+    <div class="ask-card" id="card-2" onclick="revealCard(2)">
+      <div class="ask-body">
+        <p class="ask-quote">"Would you maybe want to try a slightly higher budget this week?"</p>
+        <p class="ask-context"><strong>Context:</strong> The pro said he wants 3 more bookings per month to replace income from a client he lost.</p>
+      </div>
+      <div class="tap-prompt" id="prompt-2">Tap to see what makes it soft</div>
+      <div class="reveal-panel" id="reveal-2">
+        <p class="reveal-label">What makes it soft</p>
+        <p class="reveal-body">"Would you maybe want to" turns a recommendation into a question the pro has to answer. "Slightly higher" isn't a number. "This week" frames it as temporary rather than a real plan to replace the income he lost.</p>
+        <p class="reveal-missing"><strong>Missing:</strong> a specific number, anchor to replacing the lost income, and the AE stating the recommendation instead of asking permission.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOFT ASK 3 -->
+  <div style="margin-bottom: 0;">
+    <p class="ask-label">Soft Ask #3</p>
+    <div class="ask-card" id="card-3" onclick="revealCard(3)">
+      <div class="ask-body">
+        <p class="ask-quote">"I don't know, maybe $300 could work? What do you think?"</p>
+        <p class="ask-context"><strong>Context:</strong> The pro said she wants to grow her business enough to hire a second employee within 6 months.</p>
+      </div>
+      <div class="tap-prompt" id="prompt-3">Tap to see what makes it soft</div>
+      <div class="reveal-panel" id="reveal-3">
+        <p class="reveal-label">What makes it soft</p>
+        <p class="reveal-body">"I don't know" signals the AE hasn't decided either. "Maybe $300 could work" hedges the number and frames it as a possibility rather than a recommendation. "What do you think?" hands the decision back to the pro entirely — the AE has abdicated the role of advisor.</p>
+        <p class="reveal-missing"><strong>Missing:</strong> all three — outcome anchor, confident number without hedging, and AE ownership of the recommendation.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- REWRITE SECTION -->
+  <div class="rewrite-section" id="rewrite-section">
+    <p class="rewrite-heading">Now rewrite one</p>
+    <p class="rewrite-subtitle">Pick the soft ask you want to rewrite as a strong ask. Anchor it to the pro's stated outcome, name a specific number with confidence, and own the recommendation.</p>
+
+    <div class="picker-row">
+      <button class="pick-btn" id="pick-1" onclick="selectAsk(1)">Soft Ask #1</button>
+      <button class="pick-btn" id="pick-2" onclick="selectAsk(2)">Soft Ask #2</button>
+      <button class="pick-btn" id="pick-3" onclick="selectAsk(3)">Soft Ask #3</button>
+    </div>
+
+    <div class="rewrite-context" id="rewrite-context"></div>
+    <textarea id="rewrite-input" placeholder="Write your strong ask here..." oninput="updateCount()"></textarea>
+    <p class="char-count" id="char-count">0 characters</p>
+    <button class="submit-btn" id="submit-btn" onclick="gradeRewrite()">Submit rewrite</button>
+
+    <div class="feedback-section" id="feedback-section"></div>
+  </div>
+
+</div>
+
+<script>
+  var revealed = { 1: false, 2: false, 3: false };
+  var selectedAsk = null;
+
+  var scenarios = {
+    1: {
+      context: 'The pro said she wants to stay fully booked through the fall.',
+      outcomeKeywords: ['fall', 'fully booked', 'booked through', 'stay booked', 'through the fall', 'consistent', 'full through', 'booked all fall', 'busy through', 'season'],
+      hedgePatterns: ['maybe', 'could try', 'what do you think', 'does that sound', 'what do you feel', 'just see', 'see what happens', 'or something', 'i guess', 'i think maybe', 'sort of', 'kind of', 'what if we', 'feel right', 'sound right', 'what would you', 'does that work for you'],
+      model: 'To stay fully booked through the fall, you need consistent lead volume — and that means not dialing back when demand shifts. I\'d recommend $250/week. That\'s the number that keeps you visible through the season.'
+    },
+    2: {
+      context: 'The pro said he wants 3 more bookings per month to replace income from a client he lost.',
+      outcomeKeywords: ['3 booking', '3 more', 'replace', 'lost client', 'client he lost', 'income', 'three more', '3 jobs', 'three booking', 'lost income', 'replace that', 'client you lost', 'what you lost', 'lost account'],
+      hedgePatterns: ['maybe', 'could try', 'what do you think', 'does that sound', 'would you', 'slightly', 'sort of', 'kind of', 'what if', 'i guess', 'perhaps', 'feel right', 'sound right', 'what would you', 'does that work for you'],
+      model: 'You said you need 3 more bookings a month to replace what you lost. I\'d recommend $200/week — that\'s the budget that puts you in front of enough new customers to hit that number consistently.'
+    },
+    3: {
+      context: 'The pro said she wants to grow her business enough to hire a second employee within 6 months.',
+      outcomeKeywords: ['second employee', 'hire', '6 month', 'six month', 'grow', 'employee', 'second person', 'bring someone', 'hire someone', 'within 6', 'within six', 'hire a', 'second hire', 'another person', 'grow enough'],
+      hedgePatterns: ['maybe', 'could work', 'what do you think', 'does that sound', 'i don\'t know', 'not sure', 'i think', 'what do you feel', 'what\'s your take', 'feel right', 'sound right', 'what would you', 'does that work for you', 'i guess'],
+      model: 'You said you want to hire a second employee within 6 months — that takes consistent job volume, and $300/week is what builds it. That\'s the number I\'d recommend.'
+    }
+  };
+
+  function revealCard(n) {
+    if (revealed[n]) return;
+    revealed[n] = true;
+
+    var card = document.getElementById('card-' + n);
+    var prompt = document.getElementById('prompt-' + n);
+    var reveal = document.getElementById('reveal-' + n);
+
+    card.classList.add('revealed');
+    prompt.style.display = 'none';
+    reveal.classList.add('visible');
+
+    if (revealed[1] && revealed[2] && revealed[3]) {
+      var rewriteSection = document.getElementById('rewrite-section');
+      rewriteSection.classList.add('visible');
+      setTimeout(function() {
+        rewriteSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    }
+  }
+
+  function selectAsk(n) {
+    selectedAsk = n;
+    [1, 2, 3].forEach(function(i) {
+      var btn = document.getElementById('pick-' + i);
+      btn.classList.toggle('active', i === n);
+    });
+
+    var s = scenarios[n];
+    var ctx = document.getElementById('rewrite-context');
+    ctx.style.display = 'block';
+    ctx.innerHTML = '<strong>Context:</strong> ' + s.context;
+
+    var ta = document.getElementById('rewrite-input');
+    ta.style.display = 'block';
+    ta.value = '';
+
+    var cc = document.getElementById('char-count');
+    cc.style.display = 'block';
+    cc.textContent = '0 characters';
+
+    var btn = document.getElementById('submit-btn');
+    btn.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Submit rewrite';
+
+    var fb = document.getElementById('feedback-section');
+    fb.style.display = 'none';
+    fb.innerHTML = '';
+
+    ta.focus();
+  }
+
+  function updateCount() {
+    var len = document.getElementById('rewrite-input').value.length;
+    document.getElementById('char-count').textContent = len + ' character' + (len === 1 ? '' : 's');
+  }
+
+  function gradeRewrite() {
+    var response = document.getElementById('rewrite-input').value.trim();
+    if (response.length < 15) {
+      alert('Please write a response before submitting.');
+      return;
+    }
+
+    var s = scenarios[selectedAsk];
+    var r = response.toLowerCase();
+
+    var hasAnchor = s.outcomeKeywords.some(function(k) { return r.includes(k.toLowerCase()); });
+    var hasNumber = /\$\s*\d+/.test(r) || /\d+\s*(\/week|per week|a week|weekly|\/wk)/.test(r);
+    var noHedge = !s.hedgePatterns.some(function(k) { return r.includes(k.toLowerCase()); });
+    var hasOwnership = ["i'd recommend", "i would recommend", "i recommend", "my recommendation", "recommend starting", "recommend a ", "recommend $", "that's the number", "that's what", "the number is", "the right number", "go with", "i'd go", "i would go", "start at $", "start with $", "that's my", "that is my", "i'd suggest", "i would suggest", "i suggest", "that gets you", "that's what gets", "that's what builds", "that's what puts", "is what i'd", "is what you need", "is the number", "is what builds", "is what gets", "is what puts", "that's the level", "that's the budget", "the budget is", "the level is"].some(function(k) { return r.includes(k); });
+    var noQuestion = r.lastIndexOf('?') === -1 || r.lastIndexOf('?') < r.length * 0.3;
+    var ownsRecommendation = noHedge && hasOwnership && noQuestion;
+
+    var criteria = [
+      {
+        pass: hasAnchor,
+        label: 'Anchored to the pro\'s stated outcome',
+        passDetail: 'You connected the budget to what the pro told you they want.',
+        failDetail: 'The rewrite needs to reference what the pro said they want — not just a general pitch. Start with their goal, then let the number follow from it.'
+      },
+      {
+        pass: hasNumber,
+        label: 'Specific number — stated with confidence',
+        passDetail: 'You named a specific dollar amount.',
+        failDetail: 'A strong ask names a specific number — $[amount]/week — without qualifying it. "A slightly higher budget" or "something around X" isn\'t a recommendation.'
+      },
+      {
+        pass: ownsRecommendation,
+        label: 'AE owns the recommendation',
+        passDetail: 'You made the recommendation without softening it or handing the decision back to the pro.',
+        failDetail: 'The rewrite needs the AE to state the recommendation clearly — "I\'d recommend $X/week" — without asking the pro to confirm it. Make sure it\'s a statement, not a question, and that you\'re naming the number as yours.'
+      }
+    ];
+
+    var passed = criteria.filter(function(c) { return c.pass; }).length;
+
+    var html = '<div class="criteria-list">';
+    criteria.forEach(function(c) {
+      html += '<div class="criterion ' + (c.pass ? 'pass' : 'fail') + '">';
+      html += '<div class="criterion-icon">' + (c.pass ? '✓' : '✗') + '</div>';
+      html += '<div><p class="criterion-label">' + c.label + '</p>';
+      html += '<p class="criterion-detail">' + (c.pass ? c.passDetail : c.failDetail) + '</p></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    var summaryClass, summaryTitle, summaryBody;
+    if (passed === 3) {
+      summaryClass = 'all-pass';
+      summaryTitle = '✓ Strong ask — all three criteria hit';
+      summaryBody = 'The ask is anchored to the pro\'s outcome, the number is specific and confident, and you own the recommendation. That\'s what a top-AE ask sounds like.';
+    } else if (passed === 2) {
+      summaryClass = 'partial';
+      summaryTitle = '2 of 3 criteria met — almost there';
+      summaryBody = 'You\'re close. Review the one you missed above — it\'s usually either a hedging phrase that survived the rewrite, or the outcome anchor that got left out.';
+    } else {
+      summaryClass = 'none';
+      summaryTitle = passed + ' of 3 criteria met — try again';
+      summaryBody = 'The rewrite needs more grounding. Start with the pro\'s goal, then name your number flat, then stop. Don\'t ask them to confirm it.';
+    }
+
+    html += '<div class="summary-card ' + summaryClass + '">';
+    html += '<p class="summary-title">' + summaryTitle + '</p>';
+    html += '<p class="summary-body">' + summaryBody + '</p>';
+    html += '</div>';
+
+    html += '<div class="action-row">';
+    if (passed < 3) {
+      html += '<button class="try-again-btn" onclick="resetRewrite()">↺ Try again</button>';
+    }
+    html += '<button class="try-other-btn" onclick="pickDifferent()">Try a different ask</button>';
+    html += '</div>';
+
+    var fb = document.getElementById('feedback-section');
+    fb.innerHTML = html;
+    fb.style.display = 'block';
+
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('submit-btn').textContent = 'Submitted';
+
+    setTimeout(function() {
+      fb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  function resetRewrite() {
+    document.getElementById('rewrite-input').value = '';
+    document.getElementById('char-count').textContent = '0 characters';
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('submit-btn').textContent = 'Submit rewrite';
+    document.getElementById('feedback-section').style.display = 'none';
+    document.getElementById('feedback-section').innerHTML = '';
+    document.getElementById('rewrite-input').focus();
+  }
+
+  function pickDifferent() {
+    document.getElementById('rewrite-input').value = '';
+    document.getElementById('char-count').textContent = '0 characters';
+    document.getElementById('submit-btn').disabled = false;
+    document.getElementById('submit-btn').textContent = 'Submit rewrite';
+    document.getElementById('feedback-section').style.display = 'none';
+    document.getElementById('feedback-section').innerHTML = '';
+    document.getElementById('rewrite-context').style.display = 'none';
+    document.getElementById('rewrite-input').style.display = 'none';
+    document.getElementById('char-count').style.display = 'none';
+    document.getElementById('submit-btn').style.display = 'none';
+    [1, 2, 3].forEach(function(i) {
+      document.getElementById('pick-' + i).classList.remove('active');
+    });
+    selectedAsk = null;
+    document.getElementById('rewrite-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+</body>
+</html>
