@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROI Practice Scenarios</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f7fa;
+    color: #1a1a1a;
+    line-height: 1.6;
+    padding: 24px 20px 48px;
+  }
+
+  .page { max-width: 780px; margin: 0 auto; }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    color: #555;
+    line-height: 1.65;
+    margin-bottom: 28px;
+  }
+
+  /* SCENARIO PICKER */
+  .picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 560px) { .picker { grid-template-columns: 1fr; } }
+
+  .pick-card {
+    background: #fff;
+    border: 2px solid #e3e8ef;
+    border-radius: 14px;
+    padding: 20px 22px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .pick-card:hover {
+    border-color: #93b4e8;
+    box-shadow: 0 4px 12px rgba(26,68,128,0.08);
+  }
+
+  .pick-card.active {
+    border-color: #1a4480;
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(26,68,128,0.1);
+  }
+
+  .pick-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e8f0fe;
+    color: #1a4480;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .pick-card.active .pick-avatar {
+    background: #1a4480;
+    color: #fff;
+  }
+
+  .pick-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+
+  .pick-desc {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  /* SCENARIO PANEL */
+  .scenario-panel { display: none; }
+  .scenario-panel.visible { display: block; animation: fadeIn 0.25s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  .card-header {
+    background: #f5f7fa;
+    padding: 14px 22px;
+    border-bottom: 1px solid #e3e8ef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+
+  .card-body { padding: 22px 24px; }
+
+  /* DISCOVERY FACTS */
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  @media (max-width: 560px) { .facts-grid { grid-template-columns: 1fr 1fr; } }
+
+  .fact-box {
+    background: #f5f7fa;
+    border: 1px solid #e3e8ef;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .fact-label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .fact-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a4480;
+  }
+
+  .fact-sub {
+    font-size: 12px;
+    color: #888;
+    margin-top: 3px;
+  }
+
+  /* PRO OBJECTION */
+  .objection-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .pro-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e8f0fe;
+    color: #1a4480;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .objection-bubble {
+    background: #f5f7fa;
+    border: 1px solid #e3e8ef;
+    border-radius: 0 12px 12px 12px;
+    padding: 14px 18px;
+    flex: 1;
+  }
+
+  .objection-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a4480;
+    margin-bottom: 6px;
+  }
+
+  .objection-text {
+    font-size: 17px;
+    font-style: italic;
+    color: #1a1a1a;
+    line-height: 1.65;
+  }
+
+  /* RESPONSE INPUT */
+  .response-section { margin-top: 20px; }
+
+  .response-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+
+  .response-hint {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.55;
+    margin-bottom: 14px;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: inherit;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    background: #fff;
+    color: #1a1a1a;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 120px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus { border-color: #1a4480; box-shadow: 0 0 0 3px rgba(26,68,128,0.1); }
+
+  .char-count {
+    font-size: 12px;
+    color: #aaa;
+    text-align: right;
+    margin-top: 6px;
+    margin-bottom: 16px;
+  }
+
+  .submit-btn {
+    background: #1a4480;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+    width: 100%;
+  }
+
+  .submit-btn:hover { background: #153660; }
+  .submit-btn:disabled { background: #93b4e8; cursor: not-allowed; }
+
+  /* FEEDBACK */
+  .feedback-section {
+    display: none;
+    margin-top: 24px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .feedback-section.visible { display: block; }
+
+  .criteria-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+  .criterion {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: #fff;
+    border: 1px solid #e3e8ef;
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .criterion.pass { border-left: 4px solid #16a34a; }
+  .criterion.fail { border-left: 4px solid #dc2626; }
+
+  .criterion-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .criterion.pass .criterion-icon { background: #f0fdf4; color: #16a34a; }
+  .criterion.fail .criterion-icon { background: #fef2f2; color: #dc2626; }
+
+  .criterion-text { flex: 1; }
+
+  .criterion-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+
+  .criterion-detail {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.55;
+  }
+
+  .criterion.pass .criterion-detail { color: #16a34a; }
+  .criterion.fail .criterion-detail { color: #dc2626; }
+
+  /* SUMMARY */
+  .summary-card {
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+
+  .summary-card.all-pass {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+  }
+
+  .summary-card.partial {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+  }
+
+  .summary-card.none {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+  }
+
+  .summary-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .summary-card.all-pass .summary-title { color: #15803d; }
+  .summary-card.partial .summary-title { color: #92400e; }
+  .summary-card.none .summary-title { color: #b91c1c; }
+
+  .summary-body {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .summary-card.all-pass .summary-body { color: #166534; }
+  .summary-card.partial .summary-body { color: #78350f; }
+  .summary-card.none .summary-body { color: #991b1b; }
+
+  .action-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .try-again-btn {
+    background: #fff;
+    color: #1a4480;
+    border: 2px solid #1a4480;
+    border-radius: 10px;
+    padding: 11px 26px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 4px;
+  }
+
+  .try-again-btn:hover { background: #eff6ff; }
+
+  .other-scenario-btn {
+    background: #1a4480;
+    color: #fff;
+    border: 2px solid #1a4480;
+    border-radius: 10px;
+    padding: 11px 26px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .other-scenario-btn:hover { background: #153660; }
+
+  .restart-btn {
+    background: #fff;
+    color: #888;
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    padding: 11px 26px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .restart-btn:hover { background: #f5f7fa; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Practice: the budget pushback</h1>
+  <p class="subtitle">Pick a scenario. Read the discovery notes. Then write the ROI response you'd give this pro when they push back on the weekly budget.</p>
+
+  <!-- SCENARIO PICKER -->
+  <div class="picker">
+    <div class="pick-card" id="pick-marco" onclick="selectScenario('marco')">
+      <div class="pick-avatar">M</div>
+      <p class="pick-name">Marco</p>
+      <p class="pick-desc">Solo plumber. Replacing lost income. $400/week recommended.</p>
+    </div>
+    <div class="pick-card" id="pick-sofia" onclick="selectScenario('sofia')">
+      <div class="pick-avatar">S</div>
+      <p class="pick-name">Sofia</p>
+      <p class="pick-desc">House cleaner with a 2-person team. $300/week recommended.</p>
+    </div>
+  </div>
+
+  <!-- MARCO SCENARIO -->
+  <div class="scenario-panel" id="panel-marco">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-title">What you learned in discovery</span>
+      </div>
+      <div class="card-body">
+        <div class="facts-grid">
+          <div class="fact-box">
+            <p class="fact-label">Rate per job</p>
+            <p class="fact-value">$250</p>
+          </div>
+          <div class="fact-box">
+            <p class="fact-label">Job goal</p>
+            <p class="fact-value">8/wk</p>
+            <p class="fact-sub">to replace lost income</p>
+          </div>
+          <div class="fact-box">
+            <p class="fact-label">Budget recommended</p>
+            <p class="fact-value">$400</p>
+            <p class="fact-sub">per week</p>
+          </div>
+        </div>
+        <p style="font-size: 15px; color: #555; line-height: 1.65;"><strong style="color: #1a1a1a;">Context:</strong> Marco is a solo plumber who recently lost a long-term commercial client. He wants to replace that income — about 8 jobs a week is the number he named.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-title">The pro pushes back</span>
+      </div>
+      <div class="card-body">
+        <div class="objection-row">
+          <div class="pro-avatar">MP</div>
+          <div class="objection-bubble">
+            <p class="objection-name">Marco says —</p>
+            <p class="objection-text">"I hear what you're saying, but $400 a week is honestly more than I was planning on."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-title">Your response</span>
+      </div>
+      <div class="card-body">
+        <div class="response-section">
+          <p class="response-label">Write your ROI response to Marco</p>
+          <p class="response-hint">Use his numbers from discovery. Connect the budget to his goal. End with a question that surfaces what's really holding him back.</p>
+          <textarea id="response-marco" placeholder="Type your response here..." oninput="updateCount('marco')"></textarea>
+          <p class="char-count" id="count-marco">0 characters</p>
+          <button class="submit-btn" id="submit-marco" onclick="gradeResponse('marco')">Submit response</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="feedback-section" id="feedback-marco"></div>
+
+  </div>
+
+  <!-- SOFIA SCENARIO -->
+  <div class="scenario-panel" id="panel-sofia">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-title">What you learned in discovery</span>
+      </div>
+      <div class="card-body">
+        <div class="facts-grid">
+          <div class="fact-box">
+            <p class="fact-label">Rate per job</p>
+            <p class="fact-value">$120</p>
+          </div>
+          <div class="fact-box">
+            <p class="fact-label">Job goal</p>
+            <p class="fact-value">15/wk</p>
+            <p class="fact-sub">to keep team fully booked</p>
+          </div>
+          <div class="fact-box">
+            <p class="fact-label">Budget recommended</p>
+            <p class="fact-value">$300</p>
+            <p class="fact-sub">per week</p>
+          </div>
+        </div>
+        <p style="font-size: 15px; color: #555; line-height: 1.65;"><strong style="color: #1a1a1a;">Context:</strong> Sofia recently brought on a second cleaner and needs to keep both of them fully booked. 15 jobs a week is the number she needs to make that work.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-title">The pro pushes back</span>
+      </div>
+      <div class="card-body">
+        <div class="objection-row">
+          <div class="pro-avatar">SP</div>
+          <div class="objection-bubble">
+            <p class="objection-name">Sofia says —</p>
+            <p class="objection-text">"That's more than I expected. I'm not sure I can commit to that right now."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-header-title">Your response</span>
+      </div>
+      <div class="card-body">
+        <div class="response-section">
+          <p class="response-label">Write your ROI response to Sofia</p>
+          <p class="response-hint">Use her numbers from discovery. Connect the budget to her goal. End with a question that surfaces what's really holding her back.</p>
+          <textarea id="response-sofia" placeholder="Type your response here..." oninput="updateCount('sofia')"></textarea>
+          <p class="char-count" id="count-sofia">0 characters</p>
+          <button class="submit-btn" id="submit-sofia" onclick="gradeResponse('sofia')">Submit response</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="feedback-section" id="feedback-sofia"></div>
+
+  </div>
+
+</div>
+
+<script>
+  var currentScenario = null;
+
+  var scenarios = {
+    marco: {
+      rate: 250,
+      budget: 400,
+      goal: 8,
+      goalDesc: '8 jobs a week',
+      name: 'Marco',
+      rateKeywords: ['250', '$250', '250/job', '$250/job'],
+      budgetKeywords: ['400', '$400'],
+      goalKeywords: ['8', 'eight', '8 job', '8 a week', '8/week', 'replace', 'lost client', 'lost income', 'what you were making', 'making before'],
+      breakEvenJobs: 2
+    },
+    sofia: {
+      rate: 120,
+      budget: 300,
+      goal: 15,
+      goalDesc: '15 jobs a week',
+      name: 'Sofia',
+      rateKeywords: ['120', '$120', '120/job', '$120/job'],
+      budgetKeywords: ['300', '$300'],
+      goalKeywords: ['15', 'fifteen', '15 job', '15 a week', '15/week', 'team', 'two', '2 cleaner', 'second cleaner', 'fully booked', 'keep them busy', 'both of them'],
+      breakEvenJobs: 3
+    }
+  };
+
+  function selectScenario(which) {
+    currentScenario = which;
+    document.querySelectorAll('.pick-card').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelectorAll('.scenario-panel').forEach(function(p) { p.classList.remove('visible'); });
+    document.getElementById('pick-' + which).classList.add('active');
+    document.getElementById('panel-' + which).classList.add('visible');
+    document.getElementById('feedback-' + which).classList.remove('visible');
+    document.getElementById('feedback-' + which).innerHTML = '';
+    document.getElementById('response-' + which).value = '';
+    document.getElementById('count-' + which).textContent = '0 characters';
+    document.getElementById('submit-' + which).disabled = false;
+    document.getElementById('submit-' + which).textContent = 'Submit response';
+    window.scrollTo({ top: document.getElementById('panel-' + which).offsetTop - 20, behavior: 'smooth' });
+  }
+
+  function updateCount(which) {
+    var len = document.getElementById('response-' + which).value.length;
+    document.getElementById('count-' + which).textContent = len + ' character' + (len === 1 ? '' : 's');
+  }
+
+  function gradeResponse(which) {
+    var s = scenarios[which];
+    var response = document.getElementById('response-' + which).value.trim();
+
+    if (response.length < 20) {
+      alert('Please write a response before submitting.');
+      return;
+    }
+
+    var r = response.toLowerCase();
+
+    // CRITERION 1: Used pro's numbers (rate or budget)
+    var usedNumbers = s.rateKeywords.some(function(k) { return r.includes(k.toLowerCase()); }) ||
+                      s.budgetKeywords.some(function(k) { return r.includes(k.toLowerCase()); });
+
+    // CRITERION 2: Referenced breakeven / investment framing
+    var breakevenTerms = ['break even', 'breakeven', 'pays for itself', 'pay for itself', 'pays itself', 'cover the cost',
+                          'invest', 'investment', 'booking', 'bookings', 'job to cover', 'jobs to cover',
+                          String(s.breakEvenJobs) + ' booking', String(s.breakEvenJobs) + ' job'];
+    var usedBreakeven = breakevenTerms.some(function(k) { return r.includes(k); });
+
+    // CRITERION 3: Anchored to pro's goal
+    var usedGoal = s.goalKeywords.some(function(k) { return r.includes(k.toLowerCase()); });
+
+    // CRITERION 4: Ended with a clarifying question
+    var hasQuestion = r.indexOf('?') !== -1;
+    var questionPhrases = ['what part', 'what feels', 'what is it', "what's", 'does that', 'how does', 'what would', 'what do you', 'which part', 'is it'];
+    var usedQuestionPhrase = questionPhrases.some(function(k) { return r.includes(k); });
+    var usedClarifyingQuestion = hasQuestion && (usedQuestionPhrase || r.lastIndexOf('?') > r.length * 0.5);
+
+    var criteria = [
+      {
+        pass: usedNumbers,
+        label: "Used the pro's own numbers",
+        passDetail: "You referenced " + s.name + "'s specific rate or budget — not generic language.",
+        failDetail: "Your response didn't reference " + s.name + "'s specific numbers ($" + s.rate + "/job or the $" + s.budget + " budget). Generic language loses credibility — use their numbers."
+      },
+      {
+        pass: usedBreakeven,
+        label: "Connected the budget to breakeven",
+        passDetail: "You framed the spend as an investment with a clear return threshold.",
+        failDetail: "You didn't show the breakeven math. At $" + s.rate + "/job, $" + s.budget + "/week pays for itself in just " + s.breakEvenJobs + " booking" + (s.breakEvenJobs > 1 ? 's' : '') + ". Make that visible."
+      },
+      {
+        pass: usedGoal,
+        label: "Anchored to the pro's stated goal",
+        passDetail: "You tied the budget back to " + s.name + "'s goal of " + s.goalDesc + ".",
+        failDetail: s.name + " told you their goal — " + s.goalDesc + ". Your response didn't connect the budget to it. That's the anchor that makes the math land."
+      },
+      {
+        pass: usedClarifyingQuestion,
+        label: "Ended with a clarifying question",
+        passDetail: "You ended with a question that keeps the conversation open.",
+        failDetail: "Your response didn't end with a clarifying question. Without one, you're accepting the pushback instead of surfacing what's really behind it. Try: 'What part of the number feels risky?'"
+      }
+    ];
+
+    var passed = criteria.filter(function(c) { return c.pass; }).length;
+    var total = criteria.length;
+
+    // BUILD FEEDBACK HTML
+    var html = '<div class="criteria-list">';
+    criteria.forEach(function(c) {
+      html += '<div class="criterion ' + (c.pass ? 'pass' : 'fail') + '">';
+      html += '<div class="criterion-icon">' + (c.pass ? '✓' : '✗') + '</div>';
+      html += '<div class="criterion-text">';
+      html += '<p class="criterion-label">' + c.label + '</p>';
+      html += '<p class="criterion-detail">' + (c.pass ? c.passDetail : c.failDetail) + '</p>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+
+    // SUMMARY
+    var summaryClass, summaryTitle, summaryBody;
+    if (passed === 4) {
+      summaryClass = 'all-pass';
+      summaryTitle = '✓ Strong response — all four criteria hit';
+      summaryBody = "You used " + s.name + "'s numbers, connected the spend to a clear breakeven, anchored to their goal, and kept the conversation open with a question. That's the move.";
+    } else if (passed >= 2) {
+      summaryClass = 'partial';
+      summaryTitle = passed + ' of 4 criteria met — almost there';
+      summaryBody = "You're hitting some of the key elements. Review what's missing above and try again — the gap is usually one missing anchor or forgetting the question at the end.";
+    } else {
+      summaryClass = 'none';
+      summaryTitle = passed + ' of 4 criteria met — try again';
+      summaryBody = "The response needs more grounding in " + s.name + "'s specific situation. Start with their numbers, show the breakeven, connect it to their goal, and end with a question.";
+    }
+
+    html += '<div class="summary-card ' + summaryClass + '">';
+    html += '<p class="summary-title">' + summaryTitle + '</p>';
+    html += '<p class="summary-body">' + summaryBody + '</p>';
+    html += '</div>';
+
+    var other = which === 'marco' ? 'sofia' : 'marco';
+    var otherName = which === 'marco' ? 'Sofia' : 'Marco';
+
+    html += '<div class="action-row">';
+    if (passed < 4) {
+      html += '<button class="try-again-btn" onclick="resetScenario(\'' + which + '\')">&#8635; Try again</button>';
+    }
+    html += '<button class="other-scenario-btn" onclick="selectScenario(\'' + other + '\')">Try ' + otherName + '\'s scenario &#8594;</button>';
+    html += '<button class="restart-btn" onclick="restartAll()">Start over</button>';
+    html += '</div>';
+
+    var feedbackEl = document.getElementById('feedback-' + which);
+    feedbackEl.innerHTML = html;
+    feedbackEl.classList.add('visible');
+
+    document.getElementById('submit-' + which).disabled = true;
+    document.getElementById('submit-' + which).textContent = 'Submitted';
+
+    setTimeout(function() {
+      feedbackEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  function restartAll() {
+    currentScenario = null;
+    document.querySelectorAll('.pick-card').forEach(function(c) { c.classList.remove('active'); });
+    document.querySelectorAll('.scenario-panel').forEach(function(p) { p.classList.remove('visible'); });
+    ['marco', 'sofia'].forEach(function(which) {
+      document.getElementById('feedback-' + which).classList.remove('visible');
+      document.getElementById('feedback-' + which).innerHTML = '';
+      document.getElementById('response-' + which).value = '';
+      document.getElementById('count-' + which).textContent = '0 characters';
+      document.getElementById('submit-' + which).disabled = false;
+      document.getElementById('submit-' + which).textContent = 'Submit response';
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetScenario(which) {
+    document.getElementById('response-' + which).value = '';
+    document.getElementById('count-' + which).textContent = '0 characters';
+    document.getElementById('submit-' + which).disabled = false;
+    document.getElementById('submit-' + which).textContent = 'Submit response';
+    document.getElementById('feedback-' + which).classList.remove('visible');
+    document.getElementById('feedback-' + which).innerHTML = '';
+    document.getElementById('response-' + which).focus();
+    window.scrollTo({ top: document.getElementById('panel-' + which).offsetTop - 20, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
